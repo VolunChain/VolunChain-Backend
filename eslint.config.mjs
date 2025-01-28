@@ -16,7 +16,7 @@ export default [
       "@typescript-eslint": tseslint.plugin,
     },
     rules: {
-      /* "no-console": ["error", { allow: ["warn", "error"] }], */
+      /* "no-console": ["error", { allow: ["warn", "error"] }], */ // Uncomment to enable
       "no-unused-vars": "off",
       "@typescript-eslint/no-unused-vars": "warn",
     },
