@@ -19,10 +19,10 @@ app.get("/", (req, res) => {
 // Initialize the database and start the server
 AppDataSource.initialize()
   .then(() => {
-    console.log("Database connected successfully!");
+    console.info("Database connected successfully!");
 
     app.listen(PORT, () => {
-      console.log(`Server is running on http://localhost:${PORT}`);
+      console.info(`Server is running on http://localhost:${PORT}`);
     });
   })
   .catch((error) => {

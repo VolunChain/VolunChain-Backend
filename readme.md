@@ -53,7 +53,7 @@ Follow these steps to set up the backend locally:
    ```
 
 2. **Set Up Environment Variables**:
-   Create a `.env` file:
+   Rename `.env.example` to a `.env` update the values:
 
    ```env
    DATABASE_URL=postgresql://volunchain:volunchain123@localhost:5432/volunchain
