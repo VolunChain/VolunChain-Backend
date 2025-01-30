@@ -1,0 +1,160 @@
+openapi: 3.0.0
+info:
+  title: VolunChain API
+  description: API for managing projects in VolunChain
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api
+    description: Local development server
+
+paths:
+  /projects:
+    post:
+      summary: "Create a new project"
+      operationId: "createProject"
+      requestBody:
+        description: "Project data"
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProject'
+      responses:
+        '201':
+          description: "Project created successfully"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /projects/{id}:
+    get:
+      summary: "Get a project by its ID"
+      operationId: "getProjectById"
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: "The ID of the project"
+      responses:
+        '200':
+          description: "Project found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '404':
+          description: "Project not found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /organizations/{organizationId}/projects:
+    get:
+      summary: "Get all projects by organization ID"
+      operationId: "getProjectsByOrganizationId"
+      parameters:
+        - in: path
+          name: organizationId
+          required: true
+          schema:
+            type: string
+          description: "The ID of the organization"
+      responses:
+        '200':
+          description: "List of projects"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+        '404':
+          description: "No projects found for this organization"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    CreateProject:
+      type: object
+      required:
+        - name
+        - description
+        - location
+        - startDate
+        - endDate
+        - organizationId
+      properties:
+        description:
+          type: string
+          description: "A description of the project"
+        endDate:
+          type: string
+          format: date
+          description: "End date of the project"
+        location:
+          type: string
+          description: "The location of the project"
+        name:
+          type: string
+          description: "The name of the project"
+        organizationId:
+          type: string
+          description: "ID of the organization this project belongs to"
+        startDate:
+          type: string
+          format: date
+          description: "Start date of the project"
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: "Error message"
+
+    Project:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - location
+        - startDate
+        - endDate
+        - organizationId
+      properties:
+        description:
+          type: string
+          description: "A description of the project"
+        endDate:
+          type: string
+          format: date
+          description: "End date of the project"
+        id:
+          type: string
+          description: "Unique identifier for the project"
+        location:
+          type: string
+          description: "The location of the project"
+        name:
+          type: string
+          description: "The name of the project"
+        organizationId:
+          type: string
+          description: "ID of the organization this project belongs to"
+        startDate:
+          type: string
+          format: date
+          description: "Start date of the project"
