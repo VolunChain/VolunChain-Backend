@@ -1,9 +1,21 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
+// Define the interface for the authenticated request
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: number;
+    role: string;
+  };
+}
+
 const SECRET_KEY = process.env.JWT_SECRET || 'defaultSecret';
 
-const authMiddleware = (req: Request, res: Response, next: NextFunction): void => {
+const authMiddleware = (
+  req: AuthenticatedRequest,
+  res: Response, 
+  next: NextFunction
+): void => {
   const token = req.headers.authorization?.split(' ')[1];
 
   if (!token) {

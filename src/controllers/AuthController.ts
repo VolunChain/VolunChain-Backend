@@ -1,6 +1,13 @@
 import { Request, Response } from 'express';
 import AuthService from '../services/AuthService';
 
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: number;
+    role: string;
+  };
+}
+
 class AuthController {
   private authService: AuthService;
 
@@ -23,12 +30,13 @@ class AuthController {
     }
   };
 
-  protectedRoute = (req: Request, res: Response): void => {
-    if (req.user) {
-      res.send(`Hello ${req.user.role}, your ID is ${req.user.id}`);
-    } else {
+  protectedRoute = (req: AuthenticatedRequest, res: Response): void => {
+    if (!req.user) {
       res.status(401).json({ message: 'User not authenticated' });
+      return;
     }
+    
+    res.send(`Hello ${req.user.role}, your ID is ${req.user.id}`);
   };
 }
 

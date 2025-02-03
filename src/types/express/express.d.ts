@@ -1,3 +1,5 @@
+import { Request } from 'express';
+
 declare global {
   namespace Express {
     interface Request {
@@ -9,5 +11,5 @@ declare global {
   }
 }
 
-// This needs to be here to make the file a module
+// This is needed to make the file a module
 export {};

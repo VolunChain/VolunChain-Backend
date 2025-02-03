@@ -54,4 +54,6 @@ export const initializeDatabase = async () => {
   }
 };
 
+// Export both as named exports and default export
 export { AppDataSource, redisClient };
+export default AppDataSource; // Adding default export
