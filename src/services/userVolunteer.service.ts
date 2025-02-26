@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { Repository } from 'prisma';
 import AppDataSource from '../config/ormconfig';
 import { UserVolunteer } from '../entities/userVolunteer.entity';
 

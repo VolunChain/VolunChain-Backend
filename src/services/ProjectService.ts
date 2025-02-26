@@ -1,6 +1,6 @@
 import { prisma } from '../config/prisma';
 import { Project } from '../entities/Project';
-// import { Equal } from 'typeorm'; // Commented out until its usage is confirmed
+// import { Equal } from 'prisma'; // Commented out until its usage is confirmed
 
 class ProjectService {
   private projectRepo = prisma.project;

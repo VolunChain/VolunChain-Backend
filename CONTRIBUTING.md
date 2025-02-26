@@ -11,7 +11,7 @@ The application supports two database types configured via the `DB_TYPE` environ
 
 ### ⚙️ Environment Setup
 
-During testing, change the DB_TYPE environment variable from `postgres` to `sqlite`. This will reconfigure the TypeORM AppDataSource object to use SQLite and setup a transient, lightweight database for running tests.
+During testing, change the DB_TYPE environment variable from `postgres` to `sqlite`. This will reconfigure the Prisma AppDataSource object to use SQLite and setup a transient, lightweight database for running tests.
 
 ### Steps
 
@@ -71,10 +71,10 @@ Migrations should be database-agnostic to support both PostgreSQL and SQLite.
 await queryRunner.query(`ALTER TABLE "user" ADD COLUMN "age" INTEGER`);
 ```
 
-#### After (Using TypeORM API)
+#### After (Using Prisma API)
 
 ```typescript
-import { TableColumn } from "typeorm";
+import { TableColumn } from "prisma";
 
 await queryRunner.addColumn(
   "user",
@@ -103,12 +103,12 @@ await queryRunner.addColumn(
 3. **Database Inconsistencies**
 
    - Ensure migrations do not use raw SQL specific to PostgreSQL
-   - Use TypeORM’s schema API for compatibility across databases
+   - Use Prisma’s schema API for compatibility across databases
    - Verify that table constraints are supported in SQLite
 
 ## 📝 Notes
 
-- Migrations: All migrations must use TypeORM’s schema API (e.g., queryRunner.createTable) instead of raw SQL to ensure compatibility with SQLite.
+- Migrations: All migrations must use Prisma’s schema API (e.g., queryRunner.createTable) instead of raw SQL to ensure compatibility with SQLite.
 
 - In-Memory Database: SQLite uses an in-memory database (:memory:) during tests, so no additional setup is required.
 
@@ -117,7 +117,7 @@ await queryRunner.addColumn(
 ### Development Best Practices
 
 - Write tests for both SQLite and PostgreSQL
-- Keep migrations database-agnostic using TypeORM’s schema API
+- Keep migrations database-agnostic using Prisma’s schema API
 - Test both configurations before submitting pull requests
 
 ### Need Help?

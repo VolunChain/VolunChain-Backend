@@ -1,4 +1,4 @@
-import { Entity, Column } from 'typeorm';
+import { Entity, Column } from 'prisma';
 import { BaseEntity } from './BaseEntity';
 
 @Entity()

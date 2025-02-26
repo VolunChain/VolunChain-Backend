@@ -1,4 +1,4 @@
-import { Entity, Column, BaseEntity, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, BaseEntity, PrimaryGeneratedColumn } from 'prisma';
 
 @Entity()
 export class User extends BaseEntity {

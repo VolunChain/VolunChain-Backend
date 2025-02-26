@@ -1,6 +1,6 @@
 import { Volunteer } from "../entities/Volunteer";
 import AppDataSource from "../config/ormconfig";
-import { DataSource, Repository } from "typeorm";
+import { DataSource, Repository } from "prisma";
 export default class VolunteerService {
   private volunteerRepo: Repository<Volunteer>;
 

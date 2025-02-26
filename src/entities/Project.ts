@@ -1,4 +1,4 @@
-import { Entity, Column, OneToMany} from 'typeorm';
+import { Entity, Column, OneToMany} from 'prisma';
 import { BaseEntity } from './BaseEntity';
 import { Volunteer } from './Volunteer';
 

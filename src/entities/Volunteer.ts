@@ -1,4 +1,4 @@
-import { Entity, Column, JoinColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, JoinColumn, ManyToOne } from 'prisma';
 import { BaseEntity } from './BaseEntity';
 import { Project } from './Project';
 

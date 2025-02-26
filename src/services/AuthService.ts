@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { User } from '../entities/User';
 import AppDataSource from '../config/ormconfig';
-import { Repository } from 'typeorm';
+import { Repository } from 'prisma';
 
 const SECRET_KEY = process.env.JWT_SECRET || 'defaultSecret';
 
