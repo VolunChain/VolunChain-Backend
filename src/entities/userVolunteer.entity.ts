@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryColumn, CreateDateColumn } from 'prisma';
 import { BaseEntity } from './BaseEntity';
 
 @Entity()

@@ -10,7 +10,6 @@
     "test": "jest --runInBand",
     "test:sqlite": "DB_TYPE=sqlite jest --runInBand",
     "test:postgres": "DB_TYPE=postgres jest --runInBand",
-    "typeorm": "typeorm",
     "prepare": "husky",
     "pre-commit": "lint-staged"
   },
