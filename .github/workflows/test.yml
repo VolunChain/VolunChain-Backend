@@ -43,6 +43,14 @@ jobs:
             docker build -t volunchain-backend .
             docker run -d --name volunchain_test --link postgres:db -e DATABASE_URL=postgresql://volunchain:volunchain123@db:5432/volunchain_test volunchain-backend
 
+      - name: Generate Prisma Client
+        run: npx prisma generate
+        
+      - name: Run Prisma Migrations
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://volunchain:volunchain123@localhost:5432/volunchain
+
       - name: Run tests in Docker
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/volunchain_test
