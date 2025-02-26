@@ -13,5 +13,14 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
 
+  app:
+    build: .
+    container_name: volunchain_app
+    environment:
+      DATABASE_URL: postgres://volunchain:volunchain123@db:5432/volunchain
+    command: sh -c "npx prisma migrate deploy && npm run start"
+    depends_on:
+      - db
+
 volumes:
   db_data:
