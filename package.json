@@ -25,8 +25,7 @@
     "redis": "^4.7.0",
     "reflect-metadata": "^0.2.2",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1",
-    "typeorm": "^0.3.20"
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",

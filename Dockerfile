@@ -7,20 +7,17 @@ WORKDIR /app
 # Copy npm configuration files
 COPY package*.json ./
 
-# Install project dependencies
+# Install all dependencies, including devDependencies
 RUN npm install
 
 # Copy the rest of the source code into the container
 COPY . .
 
-# Generate the Prisma client (ensures it's ready to run migrations)
+# Generate the Prisma client
 RUN npx prisma generate
 
-# Expose port 3000 in the container
+# Expose port 3000 for the app
 EXPOSE 3000
 
-# Command to run the application in development mode
-CMD ["npm", "run", "dev"]
-
-# Command to run Prisma migrations
-CMD ["npx prisma migrate deploy && npm run start"]
+# Use a single command to start Prisma migrations and run the app
+CMD ["sh", "-c", "npx prisma migrate dev && npm run dev"]
