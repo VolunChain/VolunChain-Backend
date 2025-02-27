@@ -1,20 +1,23 @@
-# Usa la imagen oficial de Node.js como base
+# Use the official Node.js image as the base
 FROM node:18
 
-# Define el directorio de trabajo dentro del contenedor
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copia los archivos de configuración de npm
+# Copy npm configuration files
 COPY package*.json ./
 
-# Instala las dependencias del proyecto
+# Install all dependencies, including devDependencies
 RUN npm install
 
-# Copia el resto del código fuente al contenedor
+# Copy the rest of the source code into the container
 COPY . .
 
-# Expone el puerto 3000 en el contenedor
+# Generate the Prisma client
+RUN npx prisma generate
+
+# Expose port 3000 for the app
 EXPOSE 3000
 
-# Comando para ejecutar la aplicación en modo desarrollo
-CMD ["npm", "run", "dev"]
+# Use a single command to start Prisma migrations and run the app
+CMD ["sh", "-c", "npx prisma migrate dev && npm run dev"]

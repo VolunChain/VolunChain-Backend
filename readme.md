@@ -27,9 +27,9 @@ Your support helps us grow and motivates us to continue improving VolunChain. �
 ## 🛠️ Technologies Used
 
 - **Frontend:** React, Next.js.
-- **Backend:** Node.js, Express, TypeORM.
+- **Backend:** Node.js, Express, Prisma.
 - **Blockchain:** Stellar, Rust.
-- **Database:** PostgreSQL, TypeORM.
+- **Database:** PostgreSQL, Prisma.
 - **Containers:** Docker for consistent environments.
 
 ---
