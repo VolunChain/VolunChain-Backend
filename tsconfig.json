@@ -6,7 +6,7 @@
         "strict": true,                        // Activa reglas estrictas de TypeScript
         "esModuleInterop": true,              // Interoperabilidad con CommonJS
         "skipLibCheck": true,                  // Omite chequeo de tipos en dependencias
-        "emitDecoratorMetadata": true,         // Emite metadatos necesarios para TypeORM
+        "emitDecoratorMetadata": true,         // Emite metadatos necesarios para Prisma
         "experimentalDecorators": true,        // Habilita decoradores
         "outDir": "./dist",                    // Directorio de salida para archivos transpilados
         "rootDir": "./src",                    // Directorio raíz de los archivos fuente
