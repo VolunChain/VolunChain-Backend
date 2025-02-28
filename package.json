@@ -7,7 +7,16 @@
     "dev": "ts-node-dev src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
+<<<<<<< HEAD
     "test": "jest"
+=======
+    "test": "jest --runInBand",
+    "test:sqlite": "DB_TYPE=sqlite jest --runInBand",
+    "test:postgres": "DB_TYPE=postgres jest --runInBand",
+    "typeorm": "typeorm",
+    "prepare": "husky",
+    "pre-commit": "lint-staged"
+>>>>>>> 279a14d (Revert "fix: remove typeorm to all files and update to prisma")
   },
   "dependencies": {
     "@prisma/client": "^6.4.1",
