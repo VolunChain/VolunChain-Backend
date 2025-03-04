@@ -1,23 +1,25 @@
-import { Request, Response } from 'express';
-import ProjectService from '../services/ProjectService';
+import { Request, Response } from "express";
+import ProjectService from "../services/ProjectService";
 
 class ProjectController {
   private projectService = new ProjectService();
 
   async createProject(req: Request, res: Response): Promise<void> {
     try {
-      const { name, description, location, startDate, endDate, organizationId } = req.body;
+      const { name, description, location, startDate, endDate } = req.body;
       const project = await this.projectService.createProject(
         name,
         description,
         location,
         new Date(startDate),
-        new Date(endDate),
-        organizationId
+        new Date(endDate)
       );
       res.status(201).json(project);
     } catch (error) {
-      res.status(400).json({ error: error instanceof Error ? error.message : 'An unknown error occurred' });
+      res.status(400).json({
+        error:
+          error instanceof Error ? error.message : "An unknown error occurred",
+      });
     }
   }
 
@@ -26,22 +28,48 @@ class ProjectController {
       const { id } = req.params;
       const project = await this.projectService.getProjectById(id);
       if (!project) {
-        res.status(404).json({ error: 'Project not found' });
+        res.status(404).json({ error: "Project not found" });
         return;
       }
       res.status(200).json(project);
     } catch (error) {
-      res.status(400).json({ error: error instanceof Error ? error.message : 'An unknown error occurred' });
+      res.status(400).json({
+        error:
+          error instanceof Error ? error.message : "An unknown error occurred",
+      });
     }
   }
 
-  async getProjectsByOrganizationId(req: Request, res: Response): Promise<void> {
+  async getProjectsByOrganizationId(
+    req: Request,
+    res: Response
+  ): Promise<void> {
     try {
       const { organizationId } = req.params;
-      const projects = await this.projectService.getProjectsByOrganizationId(organizationId);
-      res.status(200).json(projects);
+      const page = parseInt(req.query.page as string) || 1;
+      const pageSize = parseInt(req.query.pageSize as string) || 10;
+
+      const { projects, total } =
+        await this.projectService.getProjectsByOrganizationId(
+          organizationId,
+          page,
+          pageSize
+        );
+
+      res.status(200).json({
+        data: projects,
+        pagination: {
+          total,
+          page,
+          pageSize,
+          totalPages: Math.ceil(total / pageSize),
+        },
+      });
     } catch (error) {
-      res.status(400).json({ error: error instanceof Error ? error.message : 'An unknown error occurred' });
+      res.status(400).json({
+        error:
+          error instanceof Error ? error.message : "An unknown error occurred",
+      });
     }
   }
 }

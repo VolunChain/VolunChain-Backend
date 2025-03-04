@@ -2,6 +2,11 @@ import "dotenv/config";
 import "reflect-metadata";
 import express from "express";
 import { prisma } from "./config/prisma";
+import { SwaggerConfig } from "./config/swagger.config";
+import { redisClient } from "./config/redis";
+import cors from "cors";
+import { errorHandler } from "./middlewares/errorHandler";
+import authRoutes from "./routes/authRoutes";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -24,13 +29,30 @@ app.get("/", (req, res) => {
 });
 
 // Error handler middleware
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  errorHandler(err, req, res, next);
-});
+app.use(
+  (
+    err: Error,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    errorHandler(err, req, res, next);
+  }
+);
 
 // Health check route
 app.get("/health", async (req, res) => {
-  const healthStatus: Record<string, any> = {
+  type ServiceStatus = {
+    status: string;
+    responseTime?: string;
+  };
+
+  type HealthStatus = {
+    status: string;
+    responseTime?: string;
+    services: Record<string, ServiceStatus>;
+  };
+  const healthStatus: HealthStatus = {
     status: "ok",
     services: {},
   };
@@ -39,7 +61,7 @@ app.get("/health", async (req, res) => {
   // Checking database
   try {
     const start_time = Date.now();
-    await prisma.$queryRaw("SELECT 1");
+    await prisma.$queryRaw`SELECT 1`;
     const response_time = Date.now() - start_time;
     healthStatus.services.database = {
       status: "connected",
@@ -48,6 +70,7 @@ app.get("/health", async (req, res) => {
   } catch (err) {
     healthStatus.status = "unhealthy";
     healthStatus.services.database = { status: "disconnected" };
+    console.error("Database connection failed:", err);
   }
 
   // Checking cache
@@ -62,6 +85,7 @@ app.get("/health", async (req, res) => {
   } catch (err) {
     healthStatus.status = "unhealthy";
     healthStatus.services.cache = { status: "disconnected" };
+    console.error("Redis connection failed:", err);
   }
 
   const total_responseTime = Date.now() - startTime;
@@ -77,7 +101,8 @@ app.use("/auth", authRoutes);
 app.use("/users");
 
 // Initialize the database and start the server
-prisma.$connect()
+prisma
+  .$connect()
   .then(() => {
     console.log("Database connected successfully!");
 
@@ -87,12 +112,17 @@ prisma.$connect()
         app.listen(PORT, () => {
           console.log(`Server is running on http://localhost:${PORT}`);
           if (ENV === "development") {
-            console.log(`📚 Swagger docs available at http://localhost:${PORT}/api/docs`);
+            console.log(
+              `📚 Swagger docs available at http://localhost:${PORT}/api/docs`
+            );
           }
         });
       })
       .catch((error) => {
-        console.error("Server failed to start due to Redis initialization error:", error);
+        console.error(
+          "Server failed to start due to Redis initialization error:",
+          error
+        );
       });
   })
   .catch((error) => {

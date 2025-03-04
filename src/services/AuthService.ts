@@ -1,25 +1,19 @@
-import jwt from 'jsonwebtoken';
-import { User } from '../entities/User';
-import AppDataSource from '../config/ormconfig';
-import { Repository } from 'typeorm';
+import jwt from "jsonwebtoken";
+import { prisma } from "../config/prisma";
 
-const SECRET_KEY = process.env.JWT_SECRET || 'defaultSecret';
+const SECRET_KEY = process.env.JWT_SECRET || "defaultSecret";
 
 class AuthService {
-  private userRepo: Repository<User>;
-
-  constructor() {
-    this.userRepo = AppDataSource.getRepository(User);
-  }
-
   async authenticate(walletAddress: string): Promise<string> {
-    const user = await this.userRepo.findOne({ where: { walletAddress } });
+    const user = await prisma.user.findUnique({
+      where: { wallet: walletAddress },
+    });
 
     if (!user) {
-      throw new Error('User not found');
+      throw new Error("User not found");
     }
 
-    return jwt.sign({ id: user.id, role: user.role }, SECRET_KEY, { expiresIn: '1h' });
+    return jwt.sign({ id: user.id }, SECRET_KEY, { expiresIn: "1h" });
   }
 }
 

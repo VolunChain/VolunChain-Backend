@@ -1,25 +1,71 @@
-import { Repository } from 'typeorm';
-import AppDataSource from '../config/ormconfig';
-import { UserVolunteer } from '../entities/userVolunteer.entity';
+import { prisma } from "../config/prisma";
 
 class UserVolunteerService {
-  private userVolunteerRepo: Repository<UserVolunteer>;
-
-  constructor() {
-    this.userVolunteerRepo = AppDataSource.getRepository(UserVolunteer);
+  async addUserToVolunteer(userId: string, volunteerId: string) {
+    return prisma.userVolunteer.create({
+      data: {
+        userId,
+        volunteerId,
+      },
+      include: {
+        user: true,
+        volunteer: true,
+      },
+    });
   }
 
-  async addUserToVolunteer(userId: string, volunteerId: string): Promise<UserVolunteer> {
-    const userVolunteer = this.userVolunteerRepo.create({ userId, volunteerId });
-    return this.userVolunteerRepo.save(userVolunteer);
+  async getVolunteersByUserId(
+    userId: string,
+    page: number = 1,
+    pageSize: number = 10
+  ) {
+    const skip = (page - 1) * pageSize;
+
+    const [userVolunteers, total] = await Promise.all([
+      prisma.userVolunteer.findMany({
+        where: { userId },
+        include: {
+          volunteer: true,
+        },
+        skip,
+        take: pageSize,
+        orderBy: {
+          joinedAt: "desc",
+        },
+      }),
+      prisma.userVolunteer.count({
+        where: { userId },
+      }),
+    ]);
+
+    return { userVolunteers, total };
   }
 
-  async getVolunteersByUserId(userId: string): Promise<UserVolunteer[]> {
-    return this.userVolunteerRepo.find({ where: { userId }, relations: ['volunteer'] });
-  }
+  async getUsersByVolunteerId(
+    volunteerId: string,
+    page: number = 1,
+    pageSize: number = 10
+  ) {
+    const skip = (page - 1) * pageSize;
 
-  async getUsersByVolunteerId(volunteerId: string): Promise<UserVolunteer[]> {
-    return this.userVolunteerRepo.find({ where: { volunteerId }, relations: ['user'] });
+    const [userVolunteers, total] = await Promise.all([
+      prisma.userVolunteer.findMany({
+        where: { volunteerId },
+        include: {
+          user: true,
+        },
+        skip,
+        take: pageSize,
+        orderBy: {
+          joinedAt: "desc",
+        },
+      }),
+      prisma.userVolunteer.count({
+        where: { volunteerId },
+      }),
+    ]);
+
+    return { userVolunteers, total };
   }
 }
 

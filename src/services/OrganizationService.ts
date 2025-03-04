@@ -1,13 +1,19 @@
-import { Repository } from "typeorm";
-import AppDataSource from "../config/ormconfig";
-import { Organization } from "../entities/Organization";
+import { PrismaClient, Organization, NFT } from "@prisma/client";
 import { ValidationError } from "../errors";
 
+type OrganizationWithNFTs = Organization & {
+  nfts: NFT[];
+};
+
+type OrganizationUpdateData = Partial<
+  Omit<Organization, "id" | "createdAt" | "updatedAt">
+>;
+
 class OrganizationService {
-  private organizationRepo: Repository<Organization>;
+  private prisma: PrismaClient;
 
   constructor() {
-    this.organizationRepo = AppDataSource.getRepository(Organization);
+    this.prisma = new PrismaClient();
   }
 
   async createOrganization(
@@ -16,9 +22,9 @@ class OrganizationService {
     password: string,
     category: string,
     wallet: string
-  ): Promise<Organization> {
+  ): Promise<OrganizationWithNFTs> {
     // Check if organization with email already exists
-    const existingOrgEmail = await this.organizationRepo.findOne({
+    const existingOrgEmail = await this.prisma.organization.findUnique({
       where: { email },
     });
     if (existingOrgEmail) {
@@ -26,42 +32,51 @@ class OrganizationService {
     }
 
     // Check if organization with wallet already exists
-    const existingOrgWallet = await this.organizationRepo.findOne({
+    const existingOrgWallet = await this.prisma.organization.findUnique({
       where: { wallet },
     });
     if (existingOrgWallet) {
       throw new ValidationError("Organization with this wallet already exists");
     }
 
-    const organization = this.organizationRepo.create({
-      name,
-      email,
-      password, // Note: In a real application, this should be hashed
-      category,
-      wallet,
+    return this.prisma.organization.create({
+      data: {
+        name,
+        email,
+        password, // Note: In a real application, this should be hashed
+        category,
+        wallet,
+      },
+      include: {
+        nfts: true,
+      },
     });
-
-    return this.organizationRepo.save(organization);
   }
 
-  async getOrganizationById(id: string): Promise<Organization | null> {
-    return this.organizationRepo.findOne({
+  async getOrganizationById(id: string): Promise<OrganizationWithNFTs | null> {
+    return this.prisma.organization.findUnique({
       where: { id },
-      relations: ["projects"],
+      include: {
+        nfts: true,
+      },
     });
   }
 
-  async getOrganizationByEmail(email: string): Promise<Organization | null> {
-    return this.organizationRepo.findOne({
+  async getOrganizationByEmail(
+    email: string
+  ): Promise<OrganizationWithNFTs | null> {
+    return this.prisma.organization.findUnique({
       where: { email },
-      relations: ["projects"],
+      include: {
+        nfts: true,
+      },
     });
   }
 
   async updateOrganization(
     id: string,
-    updateData: Partial<Organization>
-  ): Promise<Organization> {
+    updateData: OrganizationUpdateData
+  ): Promise<OrganizationWithNFTs> {
     const organization = await this.getOrganizationById(id);
     if (!organization) {
       throw new ValidationError("Organization not found");
@@ -69,7 +84,7 @@ class OrganizationService {
 
     // If email is being updated, check for uniqueness
     if (updateData.email && updateData.email !== organization.email) {
-      const existingOrgEmail = await this.organizationRepo.findOne({
+      const existingOrgEmail = await this.prisma.organization.findUnique({
         where: { email: updateData.email },
       });
       if (existingOrgEmail) {
@@ -81,7 +96,7 @@ class OrganizationService {
 
     // If wallet is being updated, check for uniqueness
     if (updateData.wallet && updateData.wallet !== organization.wallet) {
-      const existingOrgWallet = await this.organizationRepo.findOne({
+      const existingOrgWallet = await this.prisma.organization.findUnique({
         where: { wallet: updateData.wallet },
       });
       if (existingOrgWallet) {
@@ -91,8 +106,13 @@ class OrganizationService {
       }
     }
 
-    Object.assign(organization, updateData);
-    return this.organizationRepo.save(organization);
+    return this.prisma.organization.update({
+      where: { id },
+      data: updateData,
+      include: {
+        nfts: true,
+      },
+    });
   }
 
   async deleteOrganization(id: string): Promise<void> {
@@ -101,13 +121,32 @@ class OrganizationService {
       throw new ValidationError("Organization not found");
     }
 
-    await this.organizationRepo.remove(organization);
+    await this.prisma.organization.delete({
+      where: { id },
+    });
   }
 
-  async getAllOrganizations(): Promise<Organization[]> {
-    return this.organizationRepo.find({
-      relations: ["projects"],
-    });
+  async getAllOrganizations(
+    page: number = 1,
+    pageSize: number = 10
+  ): Promise<{ organizations: OrganizationWithNFTs[]; total: number }> {
+    const skip = (page - 1) * pageSize;
+
+    const [organizations, total] = await Promise.all([
+      this.prisma.organization.findMany({
+        skip,
+        take: pageSize,
+        include: {
+          nfts: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      }),
+      this.prisma.organization.count(),
+    ]);
+
+    return { organizations, total };
   }
 }
 

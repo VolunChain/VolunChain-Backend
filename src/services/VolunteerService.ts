@@ -1,40 +1,60 @@
-import { Volunteer } from "../entities/Volunteer";
-import AppDataSource from "../config/ormconfig";
-import { DataSource, Repository } from "typeorm";
+import { prisma } from "../config/prisma";
+
 export default class VolunteerService {
-  private volunteerRepo: Repository<Volunteer>;
-
-  constructor(dataSource: DataSource = AppDataSource) {
-    this.volunteerRepo = dataSource.getRepository(Volunteer);
-  }
-
   async createVolunteer(
     name: string,
     description: string,
     requirements: string,
     incentive: string,
     projectId: string
-  ): Promise<Volunteer> {
-    const volunteer = this.volunteerRepo.create({
-      name,
-      description,
-      requirements,
-      incentive,
-      project: { id: projectId },
+  ) {
+    return prisma.volunteer.create({
+      data: {
+        name,
+        description,
+        requirements,
+        incentive,
+        projectId,
+      },
+      include: {
+        project: true,
+      },
     });
-    return this.volunteerRepo.save(volunteer);
   }
 
-  async getVolunteerById(id: string): Promise<Volunteer | null> {
-    return this.volunteerRepo.findOne({
+  async getVolunteerById(id: string) {
+    return prisma.volunteer.findUnique({
       where: { id },
-      relations: ["project"],
+      include: {
+        project: true,
+      },
     });
   }
 
-  async getVolunteersByProjectId(projectId: string): Promise<Volunteer[]> {
-    return this.volunteerRepo.find({
-      where: { project: { id: projectId } },
-    });
+  async getVolunteersByProjectId(
+    projectId: string,
+    page: number = 1,
+    pageSize: number = 10
+  ) {
+    const skip = (page - 1) * pageSize;
+
+    const [volunteers, total] = await Promise.all([
+      prisma.volunteer.findMany({
+        where: { projectId },
+        skip,
+        take: pageSize,
+        orderBy: {
+          createdAt: "desc",
+        },
+        include: {
+          project: true,
+        },
+      }),
+      prisma.volunteer.count({
+        where: { projectId },
+      }),
+    ]);
+
+    return { volunteers, total };
   }
 }

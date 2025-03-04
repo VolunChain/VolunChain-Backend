@@ -18,6 +18,7 @@ model User {
   password  String
   wallet    String @unique // Unique wallet identifier
   nfts      NFT[]   @relation("UserNFTs") // One-to-many relationship with NFTs
+  userVolunteers UserVolunteer[] @relation("UserToVolunteer") // Relation to UserVolunteer
 }
 
 // Organization model represents an entity like a company or group
@@ -31,6 +32,7 @@ model Organization {
   category  String
   wallet    String   @unique
   nfts      NFT[]    @relation("OrganizationNFTs") // One-to-many relationship with NFTs
+  projects  Project[] // Add this line for the opposite relation
 }
 
 // BaseEntity model for common fields inherited by other models
@@ -58,16 +60,17 @@ model NFT {
 
 // Project model represents a project within the system
 model Project {
-  id          String      @id @default(uuid())
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  name        String      @db.VarChar(255)
-  description String
-  location    String      @db.VarChar(255)
-  startDate   DateTime
-  endDate     DateTime
-
-  volunteers  Volunteer[] // One-to-many relationship with Volunteers
+  id             String      @id @default(uuid())
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  name           String      @db.VarChar(255)
+  description    String
+  location       String      @db.VarChar(255)
+  startDate      DateTime
+  endDate        DateTime
+  organizationId String      // Add this field
+  organization   Organization @relation(fields: [organizationId], references: [id]) // Add this relation
+  volunteers     Volunteer[]
 }
 
 // TestItem model is a simple entity for testing purposes
@@ -82,9 +85,11 @@ model TestItem {
 
 // UserVolunteer model represents the relationship between Users and Volunteers
 model UserVolunteer {
-  userId      String // Foreign key for User
-  volunteerId String // Foreign key for Volunteer
-  joinedAt    DateTime @default(now()) // Timestamp for when the user joined as a volunteer
+  userId      String    // Foreign key for User
+  volunteerId String    // Foreign key for Volunteer
+  joinedAt    DateTime  @default(now()) // Timestamp for when the user joined as a volunteer
+  user        User      @relation(fields: [userId], references: [id], name: "UserToVolunteer")
+  volunteer   Volunteer @relation(fields: [volunteerId], references: [id], name: "VolunteerToUser")
 
   @@id([userId, volunteerId]) // Composite primary key
 }
@@ -99,8 +104,8 @@ model Volunteer {
   requirements String   @db.VarChar(255)
   incentive    String?  // Optional field for incentives
   projectId    String // Foreign key for Project
-
   project      Project  @relation(fields: [projectId], references: [id])
+  userVolunteers UserVolunteer[] @relation("VolunteerToUser") // Relation to UserVolunteer
 
   @@index([projectId]) // Index for quick lookup
 }

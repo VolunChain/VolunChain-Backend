@@ -1,28 +1,33 @@
-import { Router } from "express";
-import OrganizationController from "./controllers/OrganizationController";
-import authMiddleware from "../middleware/authMiddleware";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from "typeorm";
+import { NFT } from "./NFT";
 
-const router = Router();
+@Entity()
+export class Organization {
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
-// Public routes
-router.post("/organizations", OrganizationController.createOrganization);
-router.get("/organizations", OrganizationController.getAllOrganizations);
-router.get("/organizations/:id", OrganizationController.getOrganizationById);
-router.get(
-  "/organizations/email/:email",
-  OrganizationController.getOrganizationByEmail
-);
+  @Column()
+  name: string;
 
-// Protected routes
-router.put(
-  "/organizations/:id",
-  authMiddleware,
-  OrganizationController.updateOrganization
-);
-router.delete(
-  "/organizations/:id",
-  authMiddleware,
-  OrganizationController.deleteOrganization
-);
+  @Column({ unique: true })
+  email: string;
 
-export default router;
+  @Column({ nullable: true })
+  description: string;
+
+  @OneToMany(() => NFT, (nft) => nft.organization)
+  nfts: NFT[];
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+}
