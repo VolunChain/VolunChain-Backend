@@ -1,50 +1,48 @@
 {
-    "compilerOptions": {
-        "target": "ES2020",                    // Compila a ES2020
-        "module": "CommonJS",                  // Usa CommonJS para compatibilidad con Node.js
-        "moduleResolution": "Node",            // Resuelve módulos al estilo de Node.js
-        "strict": true,                        // Activa reglas estrictas de TypeScript
-        "esModuleInterop": true,              // Interoperabilidad con CommonJS
-        "skipLibCheck": true,                  // Omite chequeo de tipos en dependencias
-        "emitDecoratorMetadata": true,         // Emite metadatos necesarios para Prisma
-        "experimentalDecorators": true,        // Habilita decoradores
-        "outDir": "./dist",                    // Directorio de salida para archivos transpilados
-        "rootDir": "./src",                    // Directorio raíz de los archivos fuente
-        "strictPropertyInitialization": false,  // Permite propiedades no inicializadas
-        "baseUrl": ".",                        // Establece la base para paths relativos
-        "paths": {                             // Alias para importaciones
-            "@/*": ["src/*"],
-            "@entities/*": ["src/entities/*"],
-            "@controllers/*": ["src/controllers/*"],
-            "@services/*": ["src/services/*"]
-        },
-        "typeRoots": [                         // Donde buscar definiciones de tipos
-            "./node_modules/@types",
-            "./src/types"
-        ],
-        "types": ["node", "express"],          // Tipos específicos a incluir
-        "sourceMap": true,                     // Genera source maps para debugging
-        "declaration": true,                   // Genera archivos .d.ts
-        "resolveJsonModule": true,             // Permite importar archivos JSON
-        "allowJs": true,                       // Permite archivos JavaScript
-        "noImplicitAny": true,                // No permite tipos 'any' implícitos
-        "removeComments": false               // Mantiene los comentarios en el código compilado
+  "compilerOptions": {
+    "target": "ES2020", // Compila a ES2020
+    "module": "CommonJS", // Usa CommonJS para compatibilidad con Node.js
+    "moduleResolution": "Node", // Resuelve módulos al estilo de Node.js
+    "strict": true, // Activa reglas estrictas de TypeScript
+    "esModuleInterop": true, // Interoperabilidad con CommonJS
+    "skipLibCheck": true, // Omite chequeo de tipos en dependencias
+    "emitDecoratorMetadata": true, // Emite metadatos necesarios para Prisma
+    "experimentalDecorators": true, // Habilita decoradores
+    "outDir": "./dist", // Directorio de salida para archivos transpilados
+    "rootDir": "./src", // Directorio raíz de los archivos fuente
+    "strictPropertyInitialization": false, // Permite propiedades no inicializadas
+    "baseUrl": ".", // Establece la base para paths relativos
+    "paths": {
+      // Alias para importaciones
+      "@/*": ["src/*"],
+      "@entities/*": ["src/entities/*"],
+      "@controllers/*": ["src/controllers/*"],
+      "@services/*": ["src/services/*"]
     },
-    "include": [
-        "src/**/*",
-        "src/**/*.ts",
-        "src/**/*.d.ts",
-        "src/entities",
-        "src/types",
-        "src/controllers",
-        "src/services",
-        "src/routes",
-        "src/middleware"
+    "typeRoots": [
+      // Donde buscar definiciones de tipos
+      "./node_modules/@types",
+      "./src/types"
     ],
-    "exclude": [
-        "node_modules",
-        "dist",
-        "**/*.spec.ts",
-        "**/*.test.ts"
-    ]
+    "types": ["node", "express", "jest"], // Tipos específicos a incluir
+    "sourceMap": true, // Genera source maps para debugging
+    "declaration": true, // Genera archivos .d.ts
+    "resolveJsonModule": true, // Permite importar archivos JSON
+    "allowJs": true, // Permite archivos JavaScript
+    "noImplicitAny": true, // No permite tipos 'any' implícitos
+    "removeComments": false // Mantiene los comentarios en el código compilado
+  },
+  "include": [
+    "src/**/*",
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/entities",
+    "src/types",
+    "src/controllers",
+    "src/services",
+    "src/routes",
+    "src/middleware",
+    "src/modules/user/user.spec.ts"
+  ],
+  "exclude": ["node_modules", "dist", "**/*.spec.ts", "**/*.test.ts"]
 }

@@ -7,6 +7,7 @@ import { redisClient } from "./config/redis";
 import cors from "cors";
 import { errorHandler } from "./middlewares/errorHandler";
 import authRoutes from "./routes/authRoutes";
+import userRoutes from "./modules/user/user.route";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -98,7 +99,7 @@ app.get("/health", async (req, res) => {
 // Authentication routes
 app.use("/auth", authRoutes);
 
-app.use("/users");
+app.use("/users", userRoutes);
 
 // Initialize the database and start the server
 prisma
