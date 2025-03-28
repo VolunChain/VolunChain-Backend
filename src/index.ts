@@ -7,7 +7,7 @@ import { redisClient } from "./config/redis";
 import cors from "cors";
 import { errorHandler } from "./middlewares/errorHandler";
 import authRoutes from "./routes/authRoutes";
-import userRoutes from "./routes/userRoutes";
+import userRoutes from "./modules/user/user.route";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -126,7 +126,7 @@ prisma
         );
       });
   })
-  .catch((error :any) => {
+  .catch((error: any) => {
     console.error("Error during database initialization:", error);
   });
 

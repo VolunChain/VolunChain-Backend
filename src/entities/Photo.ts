@@ -1,23 +1,28 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+} from "typeorm";
 
 /**
  * Photo entity representing images uploaded by users in the system
  */
-@Entity('photos')
+@Entity("photos")
 export class Photo {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
+  @Column({ type: "varchar", length: 255, nullable: false })
   url: string;
 
-  @Column({ type: 'uuid', nullable: false })
+  @Column({ type: "uuid", nullable: false })
   userId: string;
 
   @CreateDateColumn()
   uploadedAt: Date;
 
-  @Column({ type: 'jsonb', nullable: true, default: {} })
+  @Column({ type: "jsonb", nullable: true, default: {} })
   metadata: Record<string, any>;
 
   /**
@@ -36,15 +41,19 @@ export class Photo {
    */
   validate(): boolean {
     if (!this.url) {
-      throw new Error('Photo URL is required');
+      throw new Error("Photo URL is required");
     }
-    
-    if (!this.url.match(/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/)) {
-      throw new Error('Photo URL is invalid');
+
+    if (
+      !this.url.match(
+        /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/
+      )
+    ) {
+      throw new Error("Photo URL is invalid");
     }
 
     if (!this.userId) {
-      throw new Error('User ID is required');
+      throw new Error("User ID is required");
     }
 
     return true;

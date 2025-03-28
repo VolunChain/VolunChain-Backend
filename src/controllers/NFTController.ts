@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import NFTService from '../services/NFTService';
+import { Request, Response } from "express";
+import NFTService from "../services/NFTService";
 
 class NFTController {
   async createNFT(req: Request, res: Response) {
@@ -14,7 +14,7 @@ class NFTController {
   async getNFTById(req: Request, res: Response) {
     try {
       const nft = await NFTService.getNFTById(req.params.id);
-      nft ? res.json(nft) : res.status(404).json({ error: 'NFT not found' });
+      nft ? res.json(nft) : res.status(404).json({ error: "NFT not found" });
     } catch (error) {
       res.status(400).json({ error: (error as Error).message });
     }

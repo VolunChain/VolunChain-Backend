@@ -1,16 +1,16 @@
-import { Entity, Column, JoinColumn, ManyToOne } from 'typeorm';
-import { BaseEntity } from './BaseEntity';
-import { Project } from './Project';
+import { Entity, Column, JoinColumn, ManyToOne } from "typeorm";
+import { BaseEntity } from "./BaseEntity";
+import { Project } from "./Project";
 
 @Entity()
 export class Volunteer extends BaseEntity {
-  @Column({ type: 'varchar', length: 255, nullable: false })
+  @Column({ type: "varchar", length: 255, nullable: false })
   name!: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
+  @Column({ type: "varchar", length: 255, nullable: false })
   description!: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
+  @Column({ type: "varchar", length: 255, nullable: false })
   requirements!: string;
 
   @Column({ nullable: true })
@@ -19,6 +19,6 @@ export class Volunteer extends BaseEntity {
   @ManyToOne(() => Project, (project) => project.volunteers, {
     nullable: false,
   })
-  @JoinColumn({ name: 'projectId' })
+  @JoinColumn({ name: "projectId" })
   project!: Project;
 }

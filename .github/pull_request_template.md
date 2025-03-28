@@ -22,25 +22,17 @@ Mark with an `x` all the checkboxes that apply (like `[x]`)
 
 ## 📝 Changes description
 
-
-
 ---
 
 ## 📸 Evidence (A photo is required as evidence)
-
-
 
 ---
 
 ## ⏰ Time spent breakdown
 
-
-
 ---
 
 ## 🌌 Comments
-
-
 
 ---
 
