@@ -1,61 +1,36 @@
-import { PrismaClient, NFT } from "@prisma/client";
+import { NFTRepository } from "../modules/nft/repositories/nft.repository";
+import { CreateNFT } from "../modules/nft/use-cases/createNFT";
+import { GetNFT } from "../modules/nft/use-cases/getNFT";
+import { GetNFTByUserId } from "../modules/nft/use-cases/getNFTByUserId";
+import { CreateNFTDto } from "../modules/nft/dto/create-nft.dto";
+import { DeleteNFT } from "../modules/nft/use-cases/deleteNFT";
 
-const prisma = new PrismaClient();
+export class NFTService {
+  private nftRepository = new NFTRepository();
 
-class NFTService {
-  async createNFT(data: {
-    userId: string;
-    organizationId: string;
-    description: string;
-  }): Promise<NFT> {
-    return prisma.nFT.create({
-      data: {
-        userId: data.userId,
-        organizationId: data.organizationId,
-        description: data.description,
-      },
-      include: {
-        user: true,
-        organization: true,
-      },
-    });
+  async createNFT(data: CreateNFTDto) {
+    if (!data.userId || !data.organizationId || !data.description) {
+      throw new Error("missing_required_fields");
+    }
+
+    const use_Case = new CreateNFT(this.nftRepository);
+    return await use_Case.execute(data);
   }
 
-  async getNFTById(id: string): Promise<NFT | null> {
-    return prisma.nFT.findUnique({
-      where: { id },
-      include: {
-        user: true,
-        organization: true,
-      },
-    });
+  async getNFTById(id: string) {
+    return await new GetNFT(this.nftRepository).execute(id);
   }
 
-  async getNFTsByUserId(
-    userId: string,
-    page: number = 1,
-    pageSize: number = 10
-  ): Promise<{ nfts: NFT[]; total: number }> {
-    const skip = (page - 1) * pageSize;
+  async getNFTsByUserId(userId: string, page = 1, pageSize = 10) {
+    return await new GetNFTByUserId(this.nftRepository).execute(
+      userId,
+      page,
+      pageSize
+    );
+  }
 
-    const [nfts, total] = await Promise.all([
-      prisma.nFT.findMany({
-        where: { userId },
-        include: {
-          organization: true,
-        },
-        skip,
-        take: pageSize,
-        orderBy: {
-          createdAt: "desc",
-        },
-      }),
-      prisma.nFT.count({
-        where: { userId },
-      }),
-    ]);
-
-    return { nfts, total };
+  async DeleteNFT(id: string) {
+    return await new DeleteNFT(this.nftRepository).execute(id);
   }
 }
 

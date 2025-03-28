@@ -7,7 +7,9 @@ import { redisClient } from "./config/redis";
 import cors from "cors";
 import { errorHandler } from "./middlewares/errorHandler";
 import authRoutes from "./routes/authRoutes";
+import router from "./routes/nftRoutes";
 import userRoutes from "./routes/userRoutes";
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -99,7 +101,11 @@ app.get("/health", async (req, res) => {
 // Authentication routes
 app.use("/auth", authRoutes);
 
+// This is for NFT
+app.use("/nft", router);
+
 app.use("/users", userRoutes);
+
 
 // Initialize the database and start the server
 prisma
