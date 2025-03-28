@@ -1,60 +1,62 @@
-import { prisma } from "../config/prisma";
+import { Volunteer } from "../modules/volunteer/domain/volunteer.entity";
+import { VolunteerPrismaRepository } from "../modules/volunteer/repositories/implementations/volunteer-prisma.repository";
+import { CreateVolunteerUseCase } from "../modules/volunteer/use-cases/create-volunteer.use-case";
+import { GetVolunteersByProjectUseCase } from "../modules/volunteer/use-cases/get-volunteers-by-project.use-case";
+import {
+  CreateVolunteerDTO,
+  UpdateVolunteerDTO,
+} from "../modules/volunteer/dto/volunteer.dto";
 
 export default class VolunteerService {
-  async createVolunteer(
-    name: string,
-    description: string,
-    requirements: string,
-    incentive: string,
-    projectId: string
-  ) {
-    return prisma.volunteer.create({
-      data: {
-        name,
-        description,
-        requirements,
-        incentive,
-        projectId,
-      },
-      include: {
-        project: true,
-      },
-    });
+  private volunteerRepository: VolunteerPrismaRepository;
+  private createVolunteerUseCase: CreateVolunteerUseCase;
+  private getVolunteersByProjectUseCase: GetVolunteersByProjectUseCase;
+
+  constructor() {
+    this.volunteerRepository = new VolunteerPrismaRepository();
+    this.createVolunteerUseCase = new CreateVolunteerUseCase(
+      this.volunteerRepository
+    );
+    this.getVolunteersByProjectUseCase = new GetVolunteersByProjectUseCase(
+      this.volunteerRepository
+    );
   }
 
-  async getVolunteerById(id: string) {
-    return prisma.volunteer.findUnique({
-      where: { id },
-      include: {
-        project: true,
-      },
-    });
+  async createVolunteer(volunteerData: CreateVolunteerDTO): Promise<Volunteer> {
+    return this.createVolunteerUseCase.execute(volunteerData);
   }
 
-  async getVolunteersByProjectId(
-    projectId: string,
-    page: number = 1,
-    pageSize: number = 10
-  ) {
-    const skip = (page - 1) * pageSize;
+  async getVolunteerById(id: string): Promise<Volunteer | null> {
+    return this.volunteerRepository.findById(id);
+  }
 
-    const [volunteers, total] = await Promise.all([
-      prisma.volunteer.findMany({
-        where: { projectId },
-        skip,
-        take: pageSize,
-        orderBy: {
-          createdAt: "desc",
-        },
-        include: {
-          project: true,
-        },
-      }),
-      prisma.volunteer.count({
-        where: { projectId },
-      }),
-    ]);
+  async getVolunteersByProjectId(projectId: string, page = 1, pageSize = 10) {
+    return this.getVolunteersByProjectUseCase.execute(
+      projectId,
+      page,
+      pageSize
+    );
+  }
 
-    return { volunteers, total };
+  async updateVolunteer(
+    id: string,
+    updateData: UpdateVolunteerDTO
+  ): Promise<Volunteer> {
+    // Fetch existing volunteer
+    const existingVolunteer = await this.getVolunteerById(id);
+
+    if (!existingVolunteer) {
+      throw new Error("Volunteer not found");
+    }
+
+    // Update the volunteer using domain entity method
+    existingVolunteer.update(updateData);
+
+    // Persist the updated volunteer
+    return this.volunteerRepository.update(existingVolunteer);
+  }
+
+  async deleteVolunteer(id: string): Promise<void> {
+    await this.volunteerRepository.delete(id);
   }
 }

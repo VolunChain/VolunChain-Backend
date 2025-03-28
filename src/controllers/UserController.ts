@@ -16,11 +16,9 @@ class UserController {
       );
       res.status(201).json(user);
     } catch (error: unknown) {
-      res
-        .status(400)
-        .json({
-          error: error instanceof Error ? error.message : "Unknown error",
-        });
+      res.status(400).json({
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
     }
   }
 
@@ -34,11 +32,9 @@ class UserController {
       }
       res.status(200).json(user);
     } catch (error: unknown) {
-      res
-        .status(400)
-        .json({
-          error: error instanceof Error ? error.message : "Unknown error",
-        });
+      res.status(400).json({
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
     }
   }
 
@@ -56,11 +52,9 @@ class UserController {
       }
       res.status(200).json(user);
     } catch (error: unknown) {
-      res
-        .status(400)
-        .json({
-          error: error instanceof Error ? error.message : "Unknown error",
-        });
+      res.status(400).json({
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
     }
   }
 }

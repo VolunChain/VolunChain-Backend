@@ -119,14 +119,14 @@ prisma
           }
         });
       })
-      .catch((error) => {
+      .catch((error: any) => {
         console.error(
           "Server failed to start due to Redis initialization error:",
           error
         );
       });
   })
-  .catch((error) => {
+  .catch((error: any) => {
     console.error("Error during database initialization:", error);
   });
 

@@ -4,7 +4,9 @@ import { Express } from "express";
 import fs from "fs";
 
 export class SwaggerConfig {
-  private static swaggerDocument = YAML.parse(fs.readFileSync("./openapi.yaml", "utf8"));
+  private static swaggerDocument = YAML.parse(
+    fs.readFileSync("./openapi.yaml", "utf8")
+  );
 
   static setup(app: Express): void {
     if (process.env.NODE_ENV !== "development") {
@@ -13,6 +15,10 @@ export class SwaggerConfig {
     }
 
     console.log("📚 Swagger is enabled at /api/docs");
-    app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(this.swaggerDocument));
+    app.use(
+      "/api/docs",
+      swaggerUi.serve,
+      swaggerUi.setup(this.swaggerDocument)
+    );
   }
 }

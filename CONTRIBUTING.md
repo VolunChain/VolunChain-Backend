@@ -19,32 +19,32 @@ During testing, change the DB_TYPE environment variable from `postgres` to `sqli
 
 2. Ensure all dependencies are installed by running this command:
 
-    ```bash
-    npm install
-    ```
+   ```bash
+   npm install
+   ```
 
 3. **For Testing**: Create a new `.env.test` file in the project's root directory and add this variable:
 
-    ```env
-    DB_TYPE=sqlite
-    ```
+   ```env
+   DB_TYPE=sqlite
+   ```
 
 4. **For Development**: Edit the `.env` file in the root folder of the directory to confirm full functionality of your PostgreSQL database before pushing to production:
 
-    ```env
-    DB_TYPE=postgres
-    DB_HOST=localhost
-    DB_PORT=5432
-    DB_USER=volunchain
-    DB_PASSWORD=volunchain123
-    DB_NAME=volunchain
-    ```
+   ```env
+   DB_TYPE=postgres
+   DB_HOST=localhost
+   DB_PORT=5432
+   DB_USER=volunchain
+   DB_PASSWORD=volunchain123
+   DB_NAME=volunchain
+   ```
 
 ## 🏃‍♂️Running Tests
 
 ### Quick Start
 
-After writing test scripts in the `tests` folder, run them using SQLite with the  command: `npm test` or `npm run test` or `npm run test:sqlite`.
+After writing test scripts in the `tests` folder, run them using SQLite with the command: `npm test` or `npm run test` or `npm run test:sqlite`.
 
 ### Benefits of SQLite Testing
 
@@ -87,6 +87,7 @@ await queryRunner.addColumn(
 ### Common Issues & Fixes
 
 1. **SQLite Permission Issues**
+
    - Ensure write permissions in the project directory
    - Verify `node_modules` is installed
    - Check if `sqlite3` package is installed:
@@ -96,6 +97,7 @@ await queryRunner.addColumn(
      ```
 
 2. **PostgreSQL Connection Issues**
+
    - Ensure PostgreSQL service is running
    - Verify database credentials in `.env` file
    - Check if the database exists or create a new one in the `psql` shell
