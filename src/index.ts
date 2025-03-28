@@ -8,6 +8,8 @@ import cors from "cors";
 import { errorHandler } from "./middlewares/errorHandler";
 import authRoutes from "./routes/authRoutes";
 import userRoutes from "./routes/userRoutes";
+import { setupRateLimiting } from "./middleware/rateLimitMiddleware";
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,6 +19,10 @@ console.info("Starting VolunChain API...");
 
 // Middleware for parsing JSON requests
 app.use(express.json());
+
+//Rate limiting
+setupRateLimiting(app);
+
 app.use(cors());
 
 // Setup Swagger only for development environment
@@ -126,7 +132,7 @@ prisma
         );
       });
   })
-  .catch((error :any) => {
+  .catch((error: Error) => {
     console.error("Error during database initialization:", error);
   });
 

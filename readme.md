@@ -115,3 +115,28 @@ This project is licensed under the [MIT License](./LICENSE).
 ---
 
 ## 🎉 Empowering Volunteerism, One Block at a Time.
+
+## Rate Limiting Configuration
+
+The application implements rate limiting to protect sensitive endpoints and prevent abuse.
+
+### Configuration
+
+Rate limiting can be configured via environment variables:
+
+- `RATE_LIMIT_WINDOW_MS`: Time window for rate limiting in milliseconds (default: 15 minutes)
+- `RATE_LIMIT_MAX_REQUESTS`: Maximum number of requests allowed in the time window (default: 100)
+- `RATE_LIMIT_MESSAGE`: Custom message when rate limit is exceeded
+
+### Protected Endpoints
+
+The following endpoints have rate limiting:
+
+- `/auth/login`
+- `/auth/register`
+- Wallet verification endpoints
+- Email-related endpoints
+
+### Customization
+
+You can adjust rate limit settings in your `.env` file or use the default configurations.
