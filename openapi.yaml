@@ -25,7 +25,7 @@ paths:
                   type: string
                   description: "User's wallet address"
       responses:
-        '200':
+        "200":
           description: "Authentication successful"
           content:
             application/json:
@@ -35,12 +35,12 @@ paths:
                   token:
                     type: string
                     description: "JWT authentication token"
-        '401':
+        "401":
           description: "Unauthorized"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
   /auth/protected:
     get:
@@ -49,18 +49,18 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: "Protected resource accessed successfully"
           content:
             text/plain:
               schema:
                 type: string
-        '401':
+        "401":
           description: "Unauthorized"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
   /organizations/{organizationId}/projects:
     get:
@@ -74,20 +74,20 @@ paths:
             type: string
           description: "The ID of the organization"
       responses:
-        '200':
+        "200":
           description: "List of projects"
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Project'
-        '404':
+                  $ref: "#/components/schemas/Project"
+        "404":
           description: "No projects found for this organization"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
   /projects:
     post:
@@ -98,20 +98,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateProject'
+              $ref: "#/components/schemas/CreateProject"
       responses:
-        '201':
+        "201":
           description: "Project created successfully"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Project'
-        '400':
+                $ref: "#/components/schemas/Project"
+        "400":
           description: "Bad request"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
   /projects/{id}:
     get:
@@ -125,18 +125,18 @@ paths:
             type: string
           description: "The ID of the project"
       responses:
-        '200':
+        "200":
           description: "Project found"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Project'
-        '404':
+                $ref: "#/components/schemas/Project"
+        "404":
           description: "Project not found"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
   /volunteers/{volunteerId}/users:
     get:
@@ -150,20 +150,20 @@ paths:
             type: string
           description: "The ID of the volunteer project"
       responses:
-        '200':
+        "200":
           description: "List of users"
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/User'
-        '500':
+                  $ref: "#/components/schemas/User"
+        "500":
           description: "Internal Server Error"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
 components:
   schemas:

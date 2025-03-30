@@ -41,7 +41,8 @@
     "src/controllers",
     "src/services",
     "src/routes",
-    "src/middleware"
+    "src/middleware",
+    "src/modules/user/__tests__/user.test.ts"
   ],
   "exclude": ["node_modules", "dist", "**/*.spec.ts", "**/*.test.ts"]
 }

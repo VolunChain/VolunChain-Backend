@@ -1,12 +1,12 @@
-import { Entity, PrimaryColumn, CreateDateColumn } from 'typeorm';
-import { BaseEntity } from './BaseEntity';
+import { Entity, PrimaryColumn, CreateDateColumn } from "typeorm";
+import { BaseEntity } from "./BaseEntity";
 
 @Entity()
 export class UserVolunteer extends BaseEntity {
-  @PrimaryColumn('uuid')
+  @PrimaryColumn("uuid")
   userId: string; // Simple reference field for now
 
-  @PrimaryColumn('uuid')
+  @PrimaryColumn("uuid")
   volunteerId: string; // Simple reference field for now
 
   @CreateDateColumn()
