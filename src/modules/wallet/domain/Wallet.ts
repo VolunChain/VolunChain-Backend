@@ -9,4 +9,8 @@ export class Wallet {
   static create(props: { publicKey: string; userId: string }): Wallet {
     return new Wallet(crypto.randomUUID(), props.publicKey, props.userId);
   }
+
+  verify(): Wallet {
+    return new Wallet(this.id, this.publicKey, this.userId, true);
+  }
 }

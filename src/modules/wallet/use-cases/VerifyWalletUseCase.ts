@@ -1,34 +1,42 @@
 import { IWalletRepository } from "../repositories/IWalletRepository";
 import { VerifyWalletRequest } from "../dto/VerifyWalletRequest";
-import { VerifyWalletResponse } from "../dto/VerifyWalletResponse";
 import { Wallet } from "../domain/Wallet";
 
 export class VerifyWalletUseCase {
   constructor(private walletRepository: IWalletRepository) {}
 
-  async execute(request: VerifyWalletRequest): Promise<VerifyWalletResponse> {
+  async execute(
+    request: VerifyWalletRequest
+  ): Promise<{ success: boolean; message: string }> {
+    // Validate input
+    if (!request.publicKey || !request.userId) {
+      return {
+        success: false,
+        message: "Invalid request: publicKey and userId are required",
+      };
+    }
+
     try {
-      // Verificar si la wallet existe en la red Stellar
+      // Verify if the wallet exists in the Stellar network
       const isVerified = await this.walletRepository.verifyWallet(
         request.publicKey
       );
-
       if (!isVerified) {
-        return VerifyWalletResponse.failure(
-          "Wallet not found in Stellar network"
-        );
+        return {
+          success: false,
+          message: "Wallet not found in Stellar network",
+        };
       }
 
-      // Buscar si la wallet ya existe en nuestra base de datos
+      // Check if the wallet already exists in our database
       const existingWallet = await this.walletRepository.findByPublicKey(
         request.publicKey
       );
-
       if (existingWallet) {
-        return VerifyWalletResponse.failure("Wallet already registered");
+        return { success: false, message: "Wallet already registered" };
       }
 
-      // Crear y guardar la wallet
+      // Create and save the wallet
       const wallet = Wallet.create({
         publicKey: request.publicKey,
         userId: request.userId,
@@ -36,10 +44,25 @@ export class VerifyWalletUseCase {
 
       await this.walletRepository.save(wallet);
 
-      return VerifyWalletResponse.success();
+      return {
+        success: true,
+        message: "Wallet successfully verified and registered",
+      };
     } catch (error) {
       console.error("Error verifying wallet:", error);
-      return VerifyWalletResponse.failure("Failed to verify wallet");
+
+      // Differentiate expected errors from unexpected errors
+      if (error instanceof Error && error.message.includes("network")) {
+        return {
+          success: false,
+          message: "Network error while verifying wallet",
+        };
+      }
+
+      return {
+        success: false,
+        message: "Failed to verify wallet due to an unexpected error",
+      };
     }
   }
 }
