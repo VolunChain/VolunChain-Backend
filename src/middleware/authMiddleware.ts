@@ -60,4 +60,40 @@ const authMiddleware = async (
   }
 };
 
-export default authMiddleware;
+const requireVerifiedEmail = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const authenticatedReq = req as AuthenticatedRequest;
+    
+    if (!authenticatedReq.user) {
+      res.status(401).json({ message: 'Unauthorized - Authentication required' });
+      return;
+    }
+
+    const isVerified = await userRepository.isUserVerified(authenticatedReq.user.id.toString());
+    
+    if (!isVerified) {
+      res.status(403).json({ 
+        message: 'Forbidden - Email verification required',
+        verificationNeeded: true
+      });
+      return;
+    }
+
+    // Add verification status to user object
+    authenticatedReq.user.isVerified = true;
+
+    next();
+  } catch (error) {
+    console.error('Error checking email verification status:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export default {
+  requireVerifiedEmail,
+  authMiddleware
+};

@@ -1,8 +1,8 @@
-
 import { Request, Response } from "express";
 import AuthService from "../services/AuthService";
-
-
+import { VerifyEmailDTO } from "../dtos/verifyEmailDTO";
+import { ResendVerificationDTO } from "../dtos/resendVerificationDTO";
+import { validate } from "class-validator";
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -30,10 +30,18 @@ class AuthController {
   };
 
   verifyEmail = async (req: Request, res: Response): Promise<void> => {
-    const { token } = req.params;
-
     try {
-      const response = await this.authService.verifyEmail(token);
+      // Create and validate DTO
+      const verifyEmailDto = new VerifyEmailDTO();
+      verifyEmailDto.token = req.params.token || req.query.token as string;
+      
+      const errors = await validate(verifyEmailDto);
+      if (errors.length > 0) {
+        res.status(400).json({ errors });
+        return;
+      }
+      
+      const response = await this.authService.verifyEmail(verifyEmailDto.token);
       res.json(response);
     } catch (error) {
       res.status(400).json({ message: error instanceof Error ? error.message : "Verification failed" });
@@ -41,13 +49,35 @@ class AuthController {
   };
 
   resendVerificationEmail = async (req: Request, res: Response): Promise<void> => {
-    const { email } = req.body;
-
     try {
-      const response = await this.authService.resendVerificationEmail(email);
+      // Create and validate DTO
+      const resendVerificationDto = new ResendVerificationDTO();
+      resendVerificationDto.email = req.body.email;
+      
+      const errors = await validate(resendVerificationDto);
+      if (errors.length > 0) {
+        res.status(400).json({ errors });
+        return;
+      }
+      
+      const response = await this.authService.resendVerificationEmail(resendVerificationDto.email);
       res.json(response);
     } catch (error) {
       res.status(400).json({ message: error instanceof Error ? error.message : "Could not resend email" });
+    }
+  };
+
+  checkVerificationStatus = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    if (!req.user) {
+      res.status(401).json({ message: "User not authenticated" });
+      return;
+    }
+
+    try {
+      const status = await this.authService.checkVerificationStatus(req.user.id.toString());
+      res.json(status);
+    } catch (error) {
+      res.status(400).json({ message: error instanceof Error ? error.message : "Could not check verification status" });
     }
   };
 
@@ -73,5 +103,3 @@ class AuthController {
 }
 
 export default new AuthController();
-
-

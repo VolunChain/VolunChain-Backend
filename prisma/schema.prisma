@@ -19,6 +19,7 @@ model User {
   wallet    String @unique // Unique wallet identifier
   isVerified         Boolean  @default(false)
   verificationToken  String?
+  verificationTokenExpiresAt DateTime?
   nfts      NFT[]   @relation("UserNFTs") // One-to-many relationship with NFTs
   userVolunteers UserVolunteer[] @relation("UserToVolunteer") // Relation to UserVolunteer
 }

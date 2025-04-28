@@ -183,3 +183,62 @@ The following endpoints have rate limiting:
 ### Customization
 
 You can adjust rate limit settings in your `.env` file or use the default configurations.
+
+# VolunChain Email Verification
+
+## Overview
+
+VolunChain implements email verification to ensure that users provide valid email addresses and to enhance security. The implementation follows these key steps:
+
+1. When a user registers, a verification token is generated and sent to their email.
+2. The user must click the verification link to verify their email address.
+3. Users with unverified emails have restricted access to certain features.
+
+## Features
+
+- Email verification on registration
+- Verification token with 24-hour expiration
+- Resend verification email functionality
+- Middleware to protect routes requiring verified emails
+
+## API Endpoints
+
+### Registration and Verification
+
+- `POST /auth/register` - Register a new user and send verification email
+- `GET /auth/verify-email/:token` - Verify email using the token from the email link
+- `POST /auth/resend-verification` - Resend the verification email
+- `GET /auth/verification-status` - Check if the current user's email is verified
+
+### Authentication with Verification Check
+
+
+## Implementation Details
+
+The email verification system works as follows:
+
+1. **Registration Process:**
+   - User submits registration information
+   - System creates user with `isVerified: false`
+   - System generates a verification token and expiration date
+   - System sends an email with a verification link
+
+2. **Verification Process:**
+   - User clicks verification link in email
+   - System validates the token and checks expiration
+   - System updates user record: `isVerified: true` and removes the token
+
+3. **Protection Mechanism:**
+   - Protected routes use the `requireVerifiedEmail` middleware
+   - Unverified users receive a 403 Forbidden response
+
+## Configuration
+
+The email verification system can be configured via environment variables:
+
+- `JWT_SECRET` - Secret key for JWT tokens
+- `EMAIL_SECRET` - Secret key for verification tokens
+- `EMAIL_SERVICE` - Email service provider (e.g., 'gmail')
+- `EMAIL_USER` - Email address for sending verification emails
+- `EMAIL_PASSWORD` - Password for the email account
+- `BASE_URL` - Base URL for verification links (e.g., 'http://localhost:3000')
