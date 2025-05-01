@@ -37,6 +37,7 @@
     "pg": "^8.13.1",
     "redis": "^4.7.0",
     "reflect-metadata": "^0.2.2",
+    "soroban-client": "^1.0.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "typeorm": "^0.3.21",

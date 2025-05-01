@@ -1,98 +1,86 @@
-// import jwt from "jsonwebtoken";
-// import { prisma } from "../config/prisma";
-
-// const SECRET_KEY = process.env.JWT_SECRET || "defaultSecret";
-
-// class AuthService {
-//   async authenticate(walletAddress: string): Promise<string> {
-//     const user = await prisma.user.findUnique({
-//       where: { wallet: walletAddress },
-//     });
-
-//     if (!user) {
-//       throw new Error("User not found");
-//     }
-
-//     return jwt.sign({ id: user.id }, SECRET_KEY, { expiresIn: "1h" });
-//   }
-// }
-
-// export default AuthService;
-
-import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
+import bcrypt from 'bcryptjs';
 import { prisma } from "../config/prisma";
-import { sendVerificationEmail } from "../utils/email.utils";
-
-const SECRET_KEY = process.env.JWT_SECRET || "defaultSecret";
-const EMAIL_SECRET = process.env.EMAIL_SECRET || "emailSecret";
+import jwt from 'jsonwebtoken';
+import { PrismaUserRepository } from '../modules/user/repositories/PrismaUserRepository';
+import { SendVerificationEmailUseCase } from '../modules/auth/use-cases/send-verification-email.usecase';
+import { VerifyEmailUseCase } from '../modules/auth/use-cases/verify-email.usecase';
+import { ResendVerificationEmailUseCase } from '../modules/auth/use-cases/resend-verification-email.usecase';
 
 class AuthService {
-  async register(name: string, email: string, password: string, wallet: string) {
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) throw new Error("Email already in use");
+  private userRepository: PrismaUserRepository;
+  private sendVerificationEmailUseCase: SendVerificationEmailUseCase;
+  private verifyEmailUseCase: VerifyEmailUseCase;
+  private resendVerificationEmailUseCase: ResendVerificationEmailUseCase;
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const verificationToken = jwt.sign({ email }, EMAIL_SECRET, { expiresIn: "1d" });
-
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-        wallet,
-        isVerified: false,
-        verificationToken,
-      },
-    });
-
-    await sendVerificationEmail(user.email, verificationToken);
-
-    return { message: "Registration successful. Please verify your email." };
-  }
-
-  async verifyEmail(token: string) {
-    try {
-      const decoded = jwt.verify(token, EMAIL_SECRET) as { email: string };
-      const user = await prisma.user.findUnique({ where: { email: decoded.email } });
-
-      if (!user) throw new Error("User not found");
-      if (user.isVerified) return { message: "Email already verified" };
-
-      await prisma.user.update({
-        where: { email: decoded.email },
-        data: { isVerified: true, verificationToken: null },
-      });
-
-      return { message: "Email successfully verified" };
-    } catch (error) {
-      throw new Error("Invalid or expired verification token");
-    }
-  }
-
-  async resendVerificationEmail(email: string) {
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) throw new Error("User not found");
-    if (user.isVerified) return { message: "Email already verified" };
-
-    const newToken = jwt.sign({ email }, EMAIL_SECRET, { expiresIn: "1d" });
-    await prisma.user.update({
-      where: { email },
-      data: { verificationToken: newToken },
-    });
-
-    await sendVerificationEmail(email, newToken);
-
-    return { message: "Verification email resent" };
+  constructor() {
+    this.userRepository = new PrismaUserRepository();
+    this.sendVerificationEmailUseCase = new SendVerificationEmailUseCase(this.userRepository);
+    this.verifyEmailUseCase = new VerifyEmailUseCase(this.userRepository);
+    this.resendVerificationEmailUseCase = new ResendVerificationEmailUseCase(this.userRepository);
   }
 
   async authenticate(walletAddress: string): Promise<string> {
-    const user = await prisma.user.findUnique({ where: { wallet: walletAddress } });
+    const SECRET_KEY = process.env.JWT_SECRET || "defaultSecret";
+    const user = await prisma.user.findUnique({
+      where: { wallet: walletAddress },
+    });
 
-    if (!user) throw new Error("User not found");
-    if (!user.isVerified) throw new Error("Email not verified");
+    if (!user) {
+      throw new Error("User not found");
+    }
 
     return jwt.sign({ id: user.id }, SECRET_KEY, { expiresIn: "1h" });
+  }
+
+  async register(name: string, lastName: string, email: string, password: string, wallet: string) {
+    // Check if user already exists
+    const existingUser = await this.userRepository.findByEmail(email);
+    if (existingUser) {
+      throw new Error('User with this email already exists');
+    }
+
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create user
+    const user = await this.userRepository.create({
+      id: '',
+      name,
+      lastName,
+      email,
+      password: hashedPassword,
+      wallet,
+      isVerified: false,
+    });
+
+    // Send verification email
+    await this.sendVerificationEmailUseCase.execute({ email });
+
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      message: 'User registered successfully. Please check your email to verify your account.',
+    };
+  }
+
+  async verifyEmail(token: string) {
+    return this.verifyEmailUseCase.execute({ token });
+  }
+
+  async resendVerificationEmail(email: string) {
+    return this.resendVerificationEmailUseCase.execute({ email });
+  }
+
+  async checkVerificationStatus(userId: string) {
+    const isVerified = await this.userRepository.isUserVerified(userId);
+    return { 
+      isVerified,
+      message: isVerified 
+        ? "Email is verified" 
+        : "Email is not verified"
+    };
   }
 }
 

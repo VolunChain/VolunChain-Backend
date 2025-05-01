@@ -19,4 +19,13 @@ export class User extends BaseEntity {
 
   @Column({ unique: true })
   wallet: string;
+  
+  @Column({ default: false })
+  isVerified: boolean;
+  
+  @Column({ nullable: true })
+  verificationToken: string;
+  
+  @Column({ nullable: true })
+  verificationTokenExpires: Date;
 }
