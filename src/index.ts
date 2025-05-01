@@ -10,8 +10,7 @@ import authRoutes from "./routes/authRoutes";
 import router from "./routes/nftRoutes";
 import userRoutes from "./routes/userRoutes";
 import { setupRateLimiting } from "./middleware/rateLimitMiddleware";
-
-
+import messageRoutes from "./routes/messageRoutes";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -112,6 +111,7 @@ app.use("/nft", router);
 
 app.use("/users", userRoutes);
 
+app.use("/messages", messageRoutes);
 
 // Initialize the database and start the server
 prisma
@@ -131,11 +131,18 @@ prisma
           }
         });
       })
-      .catch((error: any) => {
-        console.error(
-          "Server failed to start due to Redis initialization error:",
-          error
-        );
+      .catch((error: unknown) => {
+        if (error instanceof Error) {
+          console.error(
+            "Server failed to start due to Redis initialization error:",
+            error.message
+          );
+        } else {
+          console.error(
+            "Server failed to start due to unknown Redis initialization error:",
+            error
+          );
+        }
       });
   })
   .catch((error: Error) => {
