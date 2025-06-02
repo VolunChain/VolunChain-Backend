@@ -6,16 +6,9 @@ import { SwaggerConfig } from "./config/swagger.config";
 import { redisClient } from "./config/redis";
 import cors from "cors";
 import { errorHandler } from "./middlewares/errorHandler";
-import authRoutes from "./routes/authRoutes";
-import router from "./routes/nftRoutes";
-import userRoutes from "./routes/userRoutes";
-import metricsRoutes from "./modules/metrics/routes/metrics.routes";
+import apiRouter from "./routes";
 import { setupRateLimiting } from "./middleware/rateLimitMiddleware";
 import { cronManager } from "./utils/cron";
-import certificateRoutes from "./routes/certificatesRoutes";
-import volunteerRoutes from "./routes/VolunteerRoutes";
-import projectRoutes from "./routes/ProjectRoutes";
-import organizationRoutes from "./routes/OrganizationRoutes";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -108,22 +101,8 @@ app.get("/health", async (req, res) => {
   res.status(httpStatus).json(healthStatus);
 });
 
-// Authentication routes
-app.use("/auth", authRoutes);
-
-// This is for NFT
-app.use("/nft", router);
-
-app.use("/users", userRoutes);
-
-// Metrics routes
-app.use("/metrics", metricsRoutes);
-
-// Other routes
-app.use("/certificate", certificateRoutes);
-app.use("/projects", projectRoutes);
-app.use("/volunteers", volunteerRoutes);
-app.use("/organizations", organizationRoutes);
+// API Routes with versioning
+app.use("/api", apiRouter);
 
 // Initialize the database and start the server
 prisma

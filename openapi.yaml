@@ -1,13 +1,75 @@
 openapi: 3.0.0
 info:
   title: VolunChain API
-  description: API for managing projects in VolunChain
+  description: |
+    API for managing projects in VolunChain with versioning support.
+
+    ## API Versioning
+    This API uses URL path versioning with the following structure:
+    - `/api/v1/` - Current stable API version
+    - `/api/v2/` - Reserved for future expansion
+
+    All endpoints are namespaced under their respective version paths.
   version: 1.0.0
 servers:
+  - url: http://localhost:3000/api/v1
+    description: Local development server (v1)
   - url: http://localhost:3000/api
-    description: Local development server
+    description: API root (version info)
 
 paths:
+  # API Root endpoint (available at /api/)
+  /:
+    get:
+      summary: "API version information"
+      description: "Get information about available API versions"
+      operationId: "getApiVersions"
+      servers:
+        - url: http://localhost:3000/api
+          description: API root
+      responses:
+        '200':
+          description: "API version information"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "VolunChain API"
+                  versions:
+                    type: object
+                    properties:
+                      v1:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                            example: "stable"
+                          description:
+                            type: string
+                            example: "Current stable API version"
+                          endpoints:
+                            type: string
+                            example: "/v1/"
+                      v2:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                            example: "reserved"
+                          description:
+                            type: string
+                            example: "Reserved for future expansion"
+                          endpoints:
+                            type: string
+                            example: "/v2/"
+                  documentation:
+                    type: string
+                    example: "/api/docs"
+
+  # V1 API Endpoints (all under /api/v1/)
   /auth/login:
     post:
       summary: "User login"

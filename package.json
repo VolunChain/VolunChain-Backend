@@ -10,6 +10,11 @@
     "test": "jest --runInBand",
     "test:sqlite": "DB_TYPE=sqlite jest --runInBand",
     "test:postgres": "DB_TYPE=postgres jest --runInBand",
+    "test:api-versioning": "ts-node scripts/test-api-versioning.ts",
+    "test:all-endpoints": "ts-node scripts/test-all-endpoints.ts",
+    "test:manual": "ts-node scripts/manual-endpoint-test.ts",
+    "validate:api-versioning": "ts-node scripts/validate-api-versioning.ts",
+    "test:quick": "ts-node scripts/quick-test.ts",
     "prepare": "husky",
     "pre-commit": "lint-staged",
     "s3:setup": "ts-node src/utils/setup-s3-bucket.ts"

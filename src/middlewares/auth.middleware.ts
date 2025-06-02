@@ -1,21 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-
-// Definir interfaz para la información del usuario decodificada
-interface DecodedUser {
-  id: string;
-  email: string;
-  [key: string]: unknown;
-}
-
-// Extender la interfaz Request para incluir el campo user
-declare global {
-  namespace Express {
-    interface Request {
-      user?: DecodedUser;
-    }
-  }
-}
+import { DecodedUser } from '../types/auth.types';
 
 /**
  * Middleware que permite el acceso a la ruta incluso si el usuario no está autenticado,

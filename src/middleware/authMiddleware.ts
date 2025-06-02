@@ -3,14 +3,7 @@ import jwt from "jsonwebtoken";
 // import { AppDataSource } from "../config/data-source";
 // import { UserRepository } from "../repository/user.repository";
 import { PrismaUserRepository } from "../modules/user/repositories/PrismaUserRepository";
-
-interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    role: string;
-    isVerified: boolean;
-  };
-}
+import { AuthenticatedRequest } from "../types/auth.types";
 
 const SECRET_KEY = process.env.JWT_SECRET || "defaultSecret";
 
@@ -55,6 +48,7 @@ const authMiddleware = async (
 
     (req as AuthenticatedRequest).user = {
       id: user.id,
+      email: user.email,
       role: decoded.role,
       isVerified: user.isVerified,
     };

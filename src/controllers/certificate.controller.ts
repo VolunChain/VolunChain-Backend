@@ -2,14 +2,7 @@ import { Request, Response } from "express";
 import { container } from "../shared/infrastructure/container";
 import { prisma } from "../config/prisma";
 import { ICertificateService } from "../shared/domain/interfaces/ICertificateService";
-
-interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    role: string;
-    isVerified: boolean;
-  };
-}
+import { AuthenticatedRequest } from "../types/auth.types";
 
 const certificateService: ICertificateService = container.certificateService;
 
