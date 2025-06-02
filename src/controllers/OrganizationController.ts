@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { OrganizationService } from "../services/OrganizationService";
 import { asyncHandler } from "../utils/asyncHandler";
+import { CreateOrganizationDto, UpdateOrganizationDto } from "../dtos/organization.dto";
 
 class OrganizationController {
   private organizationService: OrganizationService;
@@ -11,14 +12,7 @@ class OrganizationController {
 
   createOrganization = asyncHandler(
     async (req: Request, res: Response): Promise<void> => {
-      const { name, email, password, category, wallet } = req.body;
-      const organization = await this.organizationService.createOrganization(
-        name,
-        email,
-        password,
-        category,
-        wallet
-      );
+      const organization = await this.organizationService.createOrganization(req.body as CreateOrganizationDto);
       res.status(201).json(organization);
     }
   );
@@ -26,8 +20,7 @@ class OrganizationController {
   getOrganizationById = asyncHandler(
     async (req: Request, res: Response): Promise<void> => {
       const { id } = req.params;
-      const organization =
-        await this.organizationService.getOrganizationById(id);
+      const organization = await this.organizationService.getOrganizationById(id);
 
       if (!organization) {
         res.status(404).json({ error: "Organization not found" });
@@ -41,8 +34,7 @@ class OrganizationController {
   getOrganizationByEmail = asyncHandler(
     async (req: Request, res: Response): Promise<void> => {
       const { email } = req.params;
-      const organization =
-        await this.organizationService.getOrganizationByEmail(email);
+      const organization = await this.organizationService.getOrganizationByEmail(email);
 
       if (!organization) {
         res.status(404).json({ error: "Organization not found" });
@@ -56,11 +48,9 @@ class OrganizationController {
   updateOrganization = asyncHandler(
     async (req: Request, res: Response): Promise<void> => {
       const { id } = req.params;
-      const updateData = req.body;
-
       const organization = await this.organizationService.updateOrganization(
         id,
-        updateData
+        req.body as UpdateOrganizationDto
       );
       res.status(200).json(organization);
     }
@@ -76,8 +66,7 @@ class OrganizationController {
 
   getAllOrganizations = asyncHandler(
     async (req: Request, res: Response): Promise<void> => {
-      const organizations =
-        await this.organizationService.getAllOrganizations();
+      const organizations = await this.organizationService.getAllOrganizations();
       res.status(200).json(organizations);
     }
   );

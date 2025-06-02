@@ -1,16 +1,13 @@
-import { CreateUserDto } from "../modules/user/dto/CreateUserDto";
 import { UserService } from "../services/UserService";
 import { Request, Response } from "express";
+import { CreateUserDto, GetUserByIdDto, GetUserByEmailDto } from "../dtos/user.dto";
 
 class UserController {
   private userService = new UserService();
 
   async createUser(req: Request, res: Response): Promise<void> {
     try {
-      const userDto = new CreateUserDto();
-      Object.assign(userDto, req.body);
-
-      const user = await this.userService.createUser(userDto);
+      const user = await this.userService.createUser(req.body as CreateUserDto);
       res.status(201).json(user);
     } catch (error: unknown) {
       res.status(400).json({
@@ -37,12 +34,7 @@ class UserController {
 
   async getUserByEmail(req: Request, res: Response): Promise<void> {
     try {
-      const { email } = req.query;
-      if (!email) {
-        res.status(400).json({ error: "Email is required" });
-        return;
-      }
-      const user = await this.userService.getUserByEmail(email as string);
+      const user = await this.userService.getUserByEmail(req.body.email);
       if (!user) {
         res.status(404).json({ error: "User not found" });
         return;
@@ -56,4 +48,4 @@ class UserController {
   }
 }
 
-export default UserController;
+export default new UserController();

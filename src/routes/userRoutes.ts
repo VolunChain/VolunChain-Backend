@@ -1,11 +1,14 @@
 import { Router } from 'express';
 import UserController from '../controllers/UserController';
+import { validateDto } from '../middleware/validation.middleware';
+import { CreateUserDto, GetUserByEmailDto } from '../dtos/user.dto';
+import { authenticateToken } from '../middleware/auth.middleware';
 
-const userController = new UserController();
 const router = Router();
 
-router.post('/users', async (req, res) => userController.createUser(req, res));
-router.get('/users/:id', async (req, res) => userController.getUserById(req, res));
-router.get('/users/:email', async (req, res) => userController.getUserByEmail(req, res));
+// Protected routes
+router.post('/', authenticateToken, validateDto(CreateUserDto), UserController.createUser);
+router.get('/:id', authenticateToken, UserController.getUserById);
+router.get('/email', authenticateToken, validateDto(GetUserByEmailDto), UserController.getUserByEmail);
 
 export default router;
