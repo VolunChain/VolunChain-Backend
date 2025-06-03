@@ -256,3 +256,113 @@ The email verification system requires the following environment variables:
 - `EMAIL_USER` - Email address for sending verification emails
 - `EMAIL_PASSWORD` - Password for the email account
 - `BASE_URL` - Base URL for verification links (e.g., 'http://localhost:3000')
+
+# Wallet Verification System
+
+## Overview
+
+The Wallet Verification system integrates with Stellar's Horizon API to verify the authenticity of Stellar wallet addresses during user registration and authentication. This ensures that only valid Stellar addresses are used in the platform and provides additional security by validating wallet ownership.
+
+## Features
+
+- **Format Validation**: Validates Stellar address format using Stellar SDK
+- **Network Verification**: Verifies wallet addresses against Stellar Horizon API
+- **Account Existence Check**: Determines if a wallet account exists on the Stellar network
+- **Balance and Sequence Retrieval**: Fetches account details for existing wallets
+- **Integration with Auth Flow**: Seamlessly integrated into registration and login processes
+- **Comprehensive Error Handling**: User-friendly error messages for various failure scenarios
+
+## Architecture
+
+The wallet verification system follows Domain-Driven Design principles:
+
+### Domain Layer
+- `WalletVerification` entity: Represents wallet verification results
+- `StellarAddress` value object: Encapsulates Stellar address validation logic
+- `IWalletRepository` interface: Defines wallet verification operations
+
+### Repository Layer
+- `HorizonWalletRepository`: Implements Horizon API integration for wallet verification
+
+### Use Cases
+- `VerifyWalletUseCase`: Handles complete wallet verification including network calls
+- `ValidateWalletFormatUseCase`: Validates wallet address format only (no network calls)
+
+### DTOs
+- `WalletVerificationRequestDto`: Request structure for wallet verification
+- `WalletVerificationResponseDto`: Response structure with verification results
+
+### Services
+- `WalletService`: High-level service for wallet operations
+
+## API Endpoints
+
+### Wallet Verification
+- `POST /auth/verify-wallet` - Fully verify a wallet address (format + network)
+- `POST /auth/validate-wallet-format` - Validate wallet address format only
+
+### Integration with Auth Endpoints
+- `POST /auth/register` - Now includes wallet verification before user creation
+- `POST /auth/login` - Now validates wallet address before authentication
+
+## Usage
+
+### Registration Flow with Wallet Verification
+
+1. User provides wallet address during registration
+2. System validates wallet address format
+3. System verifies wallet against Stellar Horizon API
+4. If verification succeeds, user registration proceeds
+5. If verification fails, registration is rejected with appropriate error message
+
+### Authentication Flow with Wallet Verification
+
+1. User provides wallet address for login
+2. System validates wallet address before checking user existence
+3. If wallet is invalid, authentication is rejected immediately
+4. If wallet is valid, normal authentication flow proceeds
+
+### Direct Wallet Verification
+
+```bash
+# Verify wallet address (format + network)
+curl -X POST http://localhost:3000/api/auth/verify-wallet \
+  -H "Content-Type: application/json" \
+  -d '{"walletAddress": "GCKFBEIYTKP5RDBQMUTAPDCFZDFNVTQNXUCUZMAQYVWLQHTQBDKTQRQY"}'
+
+# Validate wallet format only
+curl -X POST http://localhost:3000/api/auth/validate-wallet-format \
+  -H "Content-Type: application/json" \
+  -d '{"walletAddress": "GCKFBEIYTKP5RDBQMUTAPDCFZDFNVTQNXUCUZMAQYVWLQHTQBDKTQRQY"}'
+```
+
+## Environment Configuration
+
+The wallet verification system requires the following environment variables:
+
+- `HORIZON_URL` - Stellar Horizon API URL (default: 'https://horizon-testnet.stellar.org')
+- `STELLAR_NETWORK` - Stellar network ('testnet' or 'mainnet', default: 'testnet')
+
+## Error Handling
+
+The system provides comprehensive error handling for various scenarios:
+
+- **Invalid Format**: When wallet address format is incorrect
+- **Network Errors**: When Horizon API is unreachable
+- **Account Not Found**: When wallet address is valid but account doesn't exist (this is not an error)
+- **Duplicate Wallet**: When attempting to register with an already registered wallet
+
+## Testing
+
+Comprehensive test coverage includes:
+
+- Unit tests for all domain entities and value objects
+- Use case tests with mocked dependencies
+- Repository tests with mocked Horizon API responses
+- Integration tests for auth flow with wallet verification
+
+Run wallet verification tests:
+
+```bash
+npm test -- --testPathPattern=wallet
+```
