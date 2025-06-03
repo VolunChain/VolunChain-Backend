@@ -1,6 +1,7 @@
 import { UserService } from "../services/UserService";
 import { Request, Response } from "express";
 import { CreateUserDto, GetUserByIdDto, GetUserByEmailDto } from "../dtos/user.dto";
+import { validateDto } from "../middleware/validation.middleware";
 
 class UserController {
   private userService = new UserService();
@@ -48,4 +49,10 @@ class UserController {
   }
 }
 
-export default new UserController();
+const userController = new UserController();
+
+export default {
+  createUser: [validateDto(CreateUserDto), userController.createUser.bind(userController)],
+  getUserById: userController.getUserById.bind(userController),
+  getUserByEmail: [validateDto(GetUserByEmailDto), userController.getUserByEmail.bind(userController)]
+};

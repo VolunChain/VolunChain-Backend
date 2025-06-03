@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import { OrganizationService } from "../services/OrganizationService";
 import { asyncHandler } from "../utils/asyncHandler";
-import { CreateOrganizationDto, UpdateOrganizationDto } from "../dtos/organization.dto";
+import { CreateOrganizationDto, UpdateOrganizationDto, GetOrganizationByIdDto, GetOrganizationByEmailDto } from "../dtos/organization.dto";
+import { validateDto } from "../middleware/validation.middleware";
 
 class OrganizationController {
   private organizationService: OrganizationService;
@@ -72,4 +73,13 @@ class OrganizationController {
   );
 }
 
-export default new OrganizationController();
+const organizationController = new OrganizationController();
+
+export default {
+  createOrganization: [validateDto(CreateOrganizationDto), organizationController.createOrganization],
+  getOrganizationById: [validateDto(GetOrganizationByIdDto), organizationController.getOrganizationById],
+  getOrganizationByEmail: [validateDto(GetOrganizationByEmailDto), organizationController.getOrganizationByEmail],
+  updateOrganization: [validateDto(UpdateOrganizationDto), organizationController.updateOrganization],
+  deleteOrganization: organizationController.deleteOrganization,
+  getAllOrganizations: organizationController.getAllOrganizations
+};

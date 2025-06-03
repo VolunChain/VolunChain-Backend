@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import AuthService from "../services/AuthService";
 import { RegisterDto, LoginDto, VerifyEmailDto, ResendVerificationDto } from "../dtos/auth.dto";
+import { validateDto } from "../middleware/validation.middleware";
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -98,4 +99,13 @@ class AuthController {
   };
 }
 
-export default new AuthController();
+const authController = new AuthController();
+
+export default {
+  register: [validateDto(RegisterDto), authController.register],
+  verifyEmail: authController.verifyEmail,
+  resendVerificationEmail: [validateDto(ResendVerificationDto), authController.resendVerificationEmail],
+  login: [validateDto(LoginDto), authController.login],
+  checkVerificationStatus: authController.checkVerificationStatus,
+  protectedRoute: authController.protectedRoute
+};

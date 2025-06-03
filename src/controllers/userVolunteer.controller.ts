@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import UserVolunteerService from "../services/userVolunteer.service";
+import { AddUserToVolunteerDto, GetVolunteersByUserIdDto, GetUsersByVolunteerIdDto } from "../dtos/userVolunteer.dto";
+import { validateDto } from "../middleware/validation.middleware";
 
 class UserVolunteerController {
   private userVolunteerService = new UserVolunteerService();
@@ -40,4 +42,10 @@ class UserVolunteerController {
   }
 }
 
-export default UserVolunteerController;
+const userVolunteerController = new UserVolunteerController();
+
+export default {
+  addUserToVolunteer: [validateDto(AddUserToVolunteerDto), userVolunteerController.addUserToVolunteer.bind(userVolunteerController)],
+  getVolunteersByUserId: [validateDto(GetVolunteersByUserIdDto), userVolunteerController.getVolunteersByUserId.bind(userVolunteerController)],
+  getUsersByVolunteerId: [validateDto(GetUsersByVolunteerIdDto), userVolunteerController.getUsersByVolunteerId.bind(userVolunteerController)]
+};

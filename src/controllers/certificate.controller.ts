@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import { container } from "../shared/infrastructure/container";
 import { prisma } from "../config/prisma";
 import { ICertificateService } from "../shared/domain/interfaces/ICertificateService";
+import { CreateCertificateDto, GetCertificateByIdDto, DownloadCertificateDto } from "../dtos/certificate.dto";
+import { validateDto } from "../middleware/validation.middleware";
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -13,7 +15,7 @@ interface AuthenticatedRequest extends Request {
 
 const certificateService: ICertificateService = container.certificateService;
 
-export const downloadCertificate = async (
+const downloadCertificate = async (
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
@@ -71,7 +73,7 @@ export const downloadCertificate = async (
   }
 };
 
-export const createCertificate = async (
+const createCertificate = async (
   req: AuthenticatedRequest,
   res: Response
 ) => {
@@ -111,4 +113,9 @@ export const createCertificate = async (
     console.error(err);
     res.status(500).json({ error: "Failed to create certificate", err });
   }
+};
+
+export default {
+  downloadCertificate: [validateDto(DownloadCertificateDto), downloadCertificate],
+  createCertificate: [validateDto(CreateCertificateDto), createCertificate]
 };

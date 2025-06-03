@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import ProjectService from "../services/ProjectService";
+import { CreateProjectDto, GetProjectByIdDto, GetProjectsByOrganizationDto } from "../dtos/project.dto";
+import { validateDto } from "../middleware/validation.middleware";
 
 class ProjectController {
   private projectService = new ProjectService();
@@ -82,4 +84,10 @@ class ProjectController {
   }
 }
 
-export default ProjectController;
+const projectController = new ProjectController();
+
+export default {
+  createProject: [validateDto(CreateProjectDto), projectController.createProject.bind(projectController)],
+  getProjectById: [validateDto(GetProjectByIdDto), projectController.getProjectById.bind(projectController)],
+  getProjectsByOrganizationId: [validateDto(GetProjectsByOrganizationDto), projectController.getProjectsByOrganizationId.bind(projectController)]
+};

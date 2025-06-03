@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import NFTService from "../services/NFTService";
+import { CreateNFTDto, GetNFTByIdDto, GetNFTsByUserIdDto, DeleteNFTDto } from "../dtos/nft.dto";
+import { validateDto } from "../middleware/validation.middleware";
 
 class NFTController {
   // Creates_a_new_NFT_and_returns_the_created_NFT_data_OKK!!
@@ -46,4 +48,11 @@ class NFTController {
   }
 }
 
-export default new NFTController();
+const nftController = new NFTController();
+
+export default {
+  createNFT: [validateDto(CreateNFTDto), nftController.createNFT.bind(nftController)],
+  getNFTById: [validateDto(GetNFTByIdDto), nftController.getNFTById.bind(nftController)],
+  getNFTsByUserId: [validateDto(GetNFTsByUserIdDto), nftController.getNFTsByUserId.bind(nftController)],
+  deleteNFT: [validateDto(DeleteNFTDto), nftController.deleteNFT.bind(nftController)]
+};

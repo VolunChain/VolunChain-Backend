@@ -1,13 +1,14 @@
 import { Request, Response } from "express";
 import VolunteerService from "../services/VolunteerService";
-import { CreateVolunteerDTO } from "../modules/volunteer/dto/volunteer.dto";
+import { CreateVolunteerDto, GetVolunteerByIdDto, GetVolunteersByProjectDto } from "../modules/volunteer/dto/volunteer.dto";
+import { validateDto } from "../middleware/validation.middleware";
 
-export default class VolunteerController {
+class VolunteerController {
   private volunteerService = new VolunteerService();
 
   async createVolunteer(req: Request, res: Response): Promise<void> {
     try {
-      const volunteerData: CreateVolunteerDTO = req.body;
+      const volunteerData: CreateVolunteerDto = req.body;
       const volunteer =
         await this.volunteerService.createVolunteer(volunteerData);
       res.status(201).json(volunteer);
@@ -50,3 +51,11 @@ export default class VolunteerController {
     }
   }
 }
+
+const volunteerController = new VolunteerController();
+
+export default {
+  createVolunteer: [validateDto(CreateVolunteerDto), volunteerController.createVolunteer.bind(volunteerController)],
+  getVolunteerById: [validateDto(GetVolunteerByIdDto), volunteerController.getVolunteerById.bind(volunteerController)],
+  getVolunteersByProjectId: [validateDto(GetVolunteersByProjectDto), volunteerController.getVolunteersByProjectId.bind(volunteerController)]
+};
