@@ -9,6 +9,7 @@ interface AuthenticatedRequest extends Request {
     id: string;
     role: string;
     isVerified: boolean;
+    email: string;
   };
 }
 
@@ -57,6 +58,7 @@ const authMiddleware = async (
       id: user.id,
       role: decoded.role,
       isVerified: user.isVerified,
+      email: user.email
     };
 
     next();
@@ -98,7 +100,5 @@ const requireVerifiedEmail = async (
   }
 }
 
-export default {
-  requireVerifiedEmail,
-  authMiddleware
-};
+export { authMiddleware, requireVerifiedEmail };
+export default authMiddleware;

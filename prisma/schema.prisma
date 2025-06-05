@@ -23,6 +23,8 @@ model User {
   verificationTokenExpires   DateTime?
   nfts                       NFT[]     @relation("UserNFTs") // One-to-many relationship with NFTs
   userVolunteers             UserVolunteer[] @relation("UserToVolunteer") // Relation to UserVolunteer
+  sentMessages               Message[] @relation("SentMessages")
+  receivedMessages           Message[] @relation("ReceivedMessages")
 }
 
 // Organization model represents an entity like a company or group
@@ -116,6 +118,7 @@ model Volunteer {
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
   certificate     Certificate?
+  messages        Message[]
 
   @@index([projectId])
 }
@@ -164,6 +167,25 @@ model Certificate {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   downloads     CertificateDownloadLog[]
+}
+
+model Message {
+  id           String    @id @default(uuid())
+  content      String
+  sentAt       DateTime  @default(now())
+  readAt       DateTime?
+  
+  senderId     String
+  receiverId   String
+  volunteerId  String
+
+  sender       User      @relation("SentMessages", fields: [senderId], references: [id])
+  receiver     User      @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  volunteer    Volunteer @relation(fields: [volunteerId], references: [id])
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([volunteerId])
 }
 
 model CertificateDownloadLog {

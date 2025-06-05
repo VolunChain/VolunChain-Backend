@@ -42,6 +42,6 @@
     "src/services",
     "src/routes",
     "src/middleware"
-  ],
+, "tests/messaging/MessagingService.test.ts"  ],
   "exclude": ["node_modules", "dist", "**/*.spec.ts", "**/*.test.ts"]
 }

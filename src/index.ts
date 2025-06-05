@@ -16,6 +16,7 @@ import certificateRoutes from "./routes/certificatesRoutes";
 import volunteerRoutes from "./routes/VolunteerRoutes";
 import projectRoutes from "./routes/ProjectRoutes";
 import organizationRoutes from "./routes/OrganizationRoutes";
+import messageRoutes from './modules/messaging/routes/messaging.routes';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -124,6 +125,7 @@ app.use("/certificate", certificateRoutes);
 app.use("/projects", projectRoutes);
 app.use("/volunteers", volunteerRoutes);
 app.use("/organizations", organizationRoutes);
+router.use("/messages", messageRoutes);
 
 // Initialize the database and start the server
 prisma
