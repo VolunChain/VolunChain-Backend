@@ -1,11 +1,13 @@
 import { CreateUserDto } from "../modules/user/dto/CreateUserDto";
 import { UserService } from "../services/UserService";
-import { Request, Response } from "express";
+import { Response } from "express";
+import { UpdateUserDto } from "../modules/user/dto/UpdateUserDto";
+import { AuthenticatedRequest } from "../middleware/authMiddleware";
 
 class UserController {
   private userService = new UserService();
 
-  async createUser(req: Request, res: Response): Promise<void> {
+  async createUser(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const userDto = new CreateUserDto();
       Object.assign(userDto, req.body);
@@ -19,7 +21,7 @@ class UserController {
     }
   }
 
-  async getUserById(req: Request, res: Response): Promise<void> {
+  async getUserById(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const { id } = req.params;
       const user = await this.userService.getUserById(id);
@@ -35,7 +37,10 @@ class UserController {
     }
   }
 
-  async getUserByEmail(req: Request, res: Response): Promise<void> {
+  async getUserByEmail(
+    req: AuthenticatedRequest,
+    res: Response
+  ): Promise<void> {
     try {
       const { email } = req.query;
       if (!email) {
@@ -48,6 +53,22 @@ class UserController {
         return;
       }
       res.status(200).json(user);
+    } catch (error: unknown) {
+      res.status(400).json({
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  }
+
+  async updateUser(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const userDto = new UpdateUserDto();
+      Object.assign(userDto, req.body);
+      userDto.id = id;
+
+      await this.userService.updateUser(userDto);
+      res.status(200).json({ message: "User updated successfully" });
     } catch (error: unknown) {
       res.status(400).json({
         error: error instanceof Error ? error.message : "Unknown error",

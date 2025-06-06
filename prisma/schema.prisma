@@ -6,6 +6,8 @@ generator client {
 datasource db {
   provider = "postgresql" // Specifies PostgreSQL as the database provider
   url      = env("DATABASE_URL") // Loads the database connection URL from environment variables
+  directUrl = env("DIRECT_URL") // For direct connection to the database
+  relationMode = "prisma"
 }
 
 // User model represents a system user
@@ -133,7 +135,7 @@ model escrows {
   amount     Decimal   @db.Decimal(10, 2)
   status     String    @db.VarChar(50)
   created_at DateTime? @default(now()) @db.Timestamp(6)
-  users      users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users      users     @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Restrict)
 }
 
 model users {
