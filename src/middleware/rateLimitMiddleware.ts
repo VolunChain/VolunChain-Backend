@@ -1,14 +1,14 @@
 import express, { Request, Response, NextFunction, Router } from "express";
 import { RateLimitUseCase } from "./../modules/shared/middleware/rate-limit/use-cases/rate-limit-use-case";
-import { Logger } from "./../utils/logger";
+import { createLogger } from "../services/logger.service";
 
 export class RateLimitMiddleware {
   private rateLimitUseCase: RateLimitUseCase;
-  private logger: Logger;
+  private logger: ReturnType<typeof createLogger>;
 
   constructor(rateLimitUseCase?: RateLimitUseCase) {
     this.rateLimitUseCase = rateLimitUseCase || new RateLimitUseCase();
-    this.logger = new Logger("RateLimitMiddleware");
+    this.logger = createLogger("RATE_LIMIT_MIDDLEWARE");
   }
 
   // Returning a middleware function
@@ -23,18 +23,28 @@ export class RateLimitMiddleware {
         res.setHeader("X-RateLimit-Remaining", remaining.toString());
 
         if (!allowed) {
-          this.logger.warn(`Rate limit exceeded for ${req.ip} on ${req.path}`);
+          this.logger.warn(
+            `Rate limit exceeded for ${req.ip} on ${req.path}`,
+            req,
+            {
+              remaining,
+              retryAfter,
+              ip: req.ip,
+              path: req.path
+            }
+          );
           return res.status(429).json({
             error: "Too Many Requests",
             message:
               "You have exceeded the rate limit. Please try again later.",
             retryAfter: retryAfter * 60 + " seconds", // Default retry after 1 minute
+            ...(req.traceId && { traceId: req.traceId })
           });
         }
 
         next();
       } catch (error) {
-        this.logger.error("Rate limit check failed", error);
+        this.logger.error("Rate limit check failed", error, req);
         next(error);
       }
     };

@@ -6,6 +6,8 @@ import { SwaggerConfig } from "./config/swagger.config";
 import { redisClient } from "./config/redis";
 import cors from "cors";
 import { errorHandler } from "./middlewares/errorHandler";
+import { traceIdMiddleware } from "./middlewares/traceId.middleware";
+import { requestLoggerMiddleware } from "./middlewares/requestLogger.middleware";
 import authRoutes from "./routes/authRoutes";
 import router from "./routes/nftRoutes";
 import userRoutes from "./routes/userRoutes";
@@ -16,12 +18,31 @@ import certificateRoutes from "./routes/certificatesRoutes";
 import volunteerRoutes from "./routes/VolunteerRoutes";
 import projectRoutes from "./routes/ProjectRoutes";
 import organizationRoutes from "./routes/OrganizationRoutes";
+import { globalLogger } from "./services/logger.service";
+import fs from "fs";
+import path from "path";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const ENV = process.env.NODE_ENV || "development";
 
-console.info("Starting VolunChain API...");
+// Ensure logs directory exists
+const logsDir = path.join(process.cwd(), 'logs');
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir, { recursive: true });
+}
+
+globalLogger.info("Starting VolunChain API...", undefined, {
+  environment: ENV,
+  port: PORT,
+  nodeVersion: process.version
+});
+
+// Trace ID middleware (must be first to ensure all requests have trace IDs)
+app.use(traceIdMiddleware);
+
+// Request logging middleware (after trace ID)
+app.use(requestLoggerMiddleware);
 
 // Middleware for parsing JSON requests
 app.use(express.json());
@@ -129,32 +150,41 @@ app.use("/organizations", organizationRoutes);
 prisma
   .$connect()
   .then(() => {
-    console.log("Database connected successfully!");
+    globalLogger.info("Database connected successfully!");
 
     // initialize Redis
     initializeRedis()
       .then(() => {
+        globalLogger.info("Redis connected successfully!");
+
         // Inicializar tareas programadas
         cronManager.initCronJobs();
-        
+        globalLogger.info("Cron jobs initialized successfully!");
+
         app.listen(PORT, () => {
-          console.log(`Server is running on http://localhost:${PORT}`);
+          globalLogger.info(`Server is running on http://localhost:${PORT}`, undefined, {
+            port: PORT,
+            environment: ENV
+          });
+
           if (ENV === "development") {
-            console.log(
+            globalLogger.info(
               `📚 Swagger docs available at http://localhost:${PORT}/api/docs`
             );
           }
         });
       })
       .catch((error) => {
-        console.error(
-          "Server failed to start due to Redis initialization error:",
+        globalLogger.error(
+          "Server failed to start due to Redis initialization error",
           error
         );
+        process.exit(1);
       });
   })
   .catch((error: Error) => {
-    console.error("Error during database initialization:", error);
+    globalLogger.error("Error during database initialization", error);
+    process.exit(1);
   });
 
 // Function to initialize Redis

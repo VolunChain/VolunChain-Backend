@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
-import UserVolunteerService from "../services/userVolunteer.service";
+import { UserVolunteerService } from "../services/userVolunteer.service";
+import { prisma } from "../config/prisma";
 
 class UserVolunteerController {
-  private userVolunteerService = new UserVolunteerService();
+  private userVolunteerService = new UserVolunteerService(prisma);
 
   async addUserToVolunteer(req: Request, res: Response): Promise<Response> {
     try {

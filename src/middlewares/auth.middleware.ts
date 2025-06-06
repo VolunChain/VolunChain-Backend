@@ -1,18 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { DecodedUser, AuthenticatedUser, toAuthenticatedUser } from '../types/auth.types';
 
-// Definir interfaz para la información del usuario decodificada
-interface DecodedUser {
-  id: string;
-  email: string;
-  [key: string]: unknown;
-}
-
-// Extender la interfaz Request para incluir el campo user
+// Extender la interfaz Request para incluir el campo user y traceId
 declare global {
   namespace Express {
     interface Request {
-      user?: DecodedUser;
+      user?: AuthenticatedUser;
+      traceId?: string;
     }
   }
 }
@@ -43,12 +38,13 @@ export const optionalAuthMiddleware = (req: Request, res: Response, next: NextFu
     // Verificar el token si existe
     const secret = process.env.JWT_SECRET || 'default_secret';
     const decoded = jwt.verify(token, secret) as DecodedUser;
-    
-    // Adjuntar información del usuario decodificada a la solicitud
-    req.user = decoded;
+
+    // Convertir DecodedUser a AuthenticatedUser y adjuntar a la solicitud
+    req.user = toAuthenticatedUser(decoded);
   } catch (error) {
     // Error al verificar el token, continuar como invitado
-    console.error('Token verification failed:', error);
+    // Note: We don't import logger here to avoid circular dependencies
+    // This is optional auth middleware, so we continue silently
   }
   
   // Siempre continuar, ya sea autenticado o como invitado

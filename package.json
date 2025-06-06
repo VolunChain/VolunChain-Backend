@@ -22,6 +22,7 @@
     "@types/multer": "^1.4.12",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.7",
+    "@types/uuid": "^10.0.0",
     "axios": "^1.7.9",
     "backblaze-b2": "^1.7.0",
     "bcryptjs": "^3.0.2",
@@ -46,6 +47,7 @@
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "typeorm": "^0.3.21",
+    "uuid": "^11.1.0",
     "winston": "^3.17.0"
   },
   "devDependencies": {

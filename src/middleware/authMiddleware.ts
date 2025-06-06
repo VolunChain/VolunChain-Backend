@@ -3,14 +3,7 @@ import jwt from "jsonwebtoken";
 // import { AppDataSource } from "../config/data-source";
 // import { UserRepository } from "../repository/user.repository";
 import { PrismaUserRepository } from "../modules/user/repositories/PrismaUserRepository";
-
-interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    role: string;
-    isVerified: boolean;
-  };
-}
+import { AuthenticatedRequest, DecodedUser, toAuthenticatedUser } from "../types/auth.types";
 
 const SECRET_KEY = process.env.JWT_SECRET || "defaultSecret";
 
@@ -55,6 +48,7 @@ const authMiddleware = async (
 
     (req as AuthenticatedRequest).user = {
       id: user.id,
+      email: user.email,
       role: decoded.role,
       isVerified: user.isVerified,
     };
@@ -93,8 +87,12 @@ const requireVerifiedEmail = async (
 
     next();
   } catch (error) {
+    // Use basic console.error here to avoid circular dependencies
     console.error('Error checking email verification status:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({
+      message: 'Internal server error',
+      ...(req.traceId && { traceId: req.traceId })
+    });
   }
 }
 
