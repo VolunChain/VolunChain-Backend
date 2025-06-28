@@ -15,7 +15,7 @@ const prismaClientSingleton = () => {
 
 // Ensure we only create one instance of PrismaClient
 declare global {
-  // eslint-disable-next-line no-var
+   
   var prisma: PrismaClient | undefined;
 }
 

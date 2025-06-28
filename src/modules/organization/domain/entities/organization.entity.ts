@@ -1,6 +1,7 @@
 import { BaseEntity } from "../../../shared/domain/entities/base.entity";
 
 export interface OrganizationProps {
+  id: string;
   name: string;
   email: string;
   description: string;
@@ -31,7 +32,7 @@ export class Organization extends BaseEntity {
     createdAt?: Date,
     updatedAt?: Date
   ) {
-    super(id, createdAt, updatedAt);
+    super();
     this.name = props.name;
     this.email = props.email;
     this.description = props.description;
@@ -51,6 +52,7 @@ export class Organization extends BaseEntity {
   public update(props: Partial<OrganizationProps>): Organization {
     return new Organization(
       {
+        id: this.id,
         name: props.name ?? this.name,
         email: props.email ?? this.email,
         description: props.description ?? this.description,

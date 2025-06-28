@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { Volunteer } from "../../domain/volunteer.entity";
+import { Volunteer } from "../../domain/entities/volunteer.entity";
 import { IVolunteerRepository } from "../interfaces/volunteer-repository.interface";
 
 export class VolunteerPrismaRepository implements IVolunteerRepository {

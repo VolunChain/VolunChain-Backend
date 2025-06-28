@@ -1,4 +1,4 @@
-import { Volunteer } from "../../domain/volunteer.entity";
+import { Volunteer } from "../../domain/entities/volunteer.entity";
 
 export interface IVolunteerRepository {
   create(volunteer: Volunteer): Promise<Volunteer>;
