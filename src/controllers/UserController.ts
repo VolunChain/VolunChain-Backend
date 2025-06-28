@@ -1,5 +1,5 @@
 import { CreateUserDto } from "../modules/user/dto/CreateUserDto";
-import { UserService } from "../services/UserService";
+import { UserService } from "../modules/user/application/services/UserService";
 import { Response } from "express";
 import { UpdateUserDto } from "../modules/user/dto/UpdateUserDto";
 import { AuthenticatedRequest } from "../types/auth.types";

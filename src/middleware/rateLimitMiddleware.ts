@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction, Router } from "express";
 import { RateLimitUseCase } from "./../modules/shared/middleware/rate-limit/use-cases/rate-limit-use-case";
-import { createLogger } from "../services/logger.service";
+import { createLogger } from "../modules/shared/application/services/LoggerService";
 
 export class RateLimitMiddleware {
   private rateLimitUseCase: RateLimitUseCase;
@@ -30,7 +30,7 @@ export class RateLimitMiddleware {
               remaining,
               retryAfter,
               ip: req.ip,
-              path: req.path
+              path: req.path,
             }
           );
           return res.status(429).json({
@@ -38,7 +38,7 @@ export class RateLimitMiddleware {
             message:
               "You have exceeded the rate limit. Please try again later.",
             retryAfter: retryAfter * 60 + " seconds", // Default retry after 1 minute
-            ...(req.traceId && { traceId: req.traceId })
+            ...(req.traceId && { traceId: req.traceId }),
           });
         }
 

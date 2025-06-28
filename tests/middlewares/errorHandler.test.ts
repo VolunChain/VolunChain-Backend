@@ -19,6 +19,9 @@ describe("Error Handler Middleware", () => {
       method: "GET",
       body: {},
       query: {},
+      url: "/test",
+      ip: "127.0.0.1",
+      get: jest.fn().mockReturnValue("test-user-agent"),
     };
     mockResponse = {
       status: jest.fn().mockReturnThis(),
@@ -39,9 +42,8 @@ describe("Error Handler Middleware", () => {
 
     expect(mockResponse.status).toHaveBeenCalledWith(400);
     expect(mockResponse.json).toHaveBeenCalledWith({
-      statusCode: 400,
+      code: "VALIDATION_ERROR",
       message: "Invalid input",
-      errorCode: "VALIDATION_ERROR",
       details: { field: "username" },
     });
   });
@@ -58,9 +60,8 @@ describe("Error Handler Middleware", () => {
 
     expect(mockResponse.status).toHaveBeenCalledWith(401);
     expect(mockResponse.json).toHaveBeenCalledWith({
-      statusCode: 401,
+      code: "AUTHENTICATION_ERROR",
       message: "Invalid credentials",
-      errorCode: "AUTHENTICATION_ERROR",
     });
   });
 
@@ -76,9 +77,8 @@ describe("Error Handler Middleware", () => {
 
     expect(mockResponse.status).toHaveBeenCalledWith(404);
     expect(mockResponse.json).toHaveBeenCalledWith({
-      statusCode: 404,
+      code: "RESOURCE_NOT_FOUND",
       message: "User not found",
-      errorCode: "RESOURCE_NOT_FOUND",
     });
   });
 
@@ -104,7 +104,15 @@ describe("Error Handler Middleware", () => {
     const originalEnv = process.env.NODE_ENV;
     process.env.NODE_ENV = "development";
 
-    const consoleSpy = jest.spyOn(console, "error").mockImplementation();
+    // Mock Winston logger
+    const mockWinstonLogger = {
+      error: jest.fn(),
+    };
+
+    jest.doMock("../../src/config/winston.config", () => ({
+      logger: mockWinstonLogger,
+    }));
+
     const error = new Error("Test error");
     error.stack = "Test stack trace";
 
@@ -115,15 +123,18 @@ describe("Error Handler Middleware", () => {
       nextFunction
     );
 
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("stack"));
-    expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining("requestBody")
-    );
-    expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining("requestQuery")
+    expect(mockWinstonLogger.error).toHaveBeenCalledWith(
+      "Unhandled error occurred",
+      error,
+      mockRequest,
+      expect.objectContaining({
+        path: "/test",
+        method: "GET",
+        errorType: "Error",
+      })
     );
 
     process.env.NODE_ENV = originalEnv;
-    consoleSpy.mockRestore();
+    jest.dontMock("../../src/config/winston.config");
   });
 });

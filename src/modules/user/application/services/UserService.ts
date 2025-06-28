@@ -1,4 +1,4 @@
-import { CreateUserDto } from "../modules/user/dto/CreateUserDto";
+import { CreateUserDto } from "../../dto/CreateUserDto";
 import {
   CreateUserUseCase,
   DeleteUserUseCase,
@@ -6,9 +6,10 @@ import {
   GetUserByIdUseCase,
   GetUsersUseCase,
   UpdateUserUseCase,
-} from "../modules/user/use-cases/userUseCase";
-import { UpdateUserDto } from "../modules/user/dto/UpdateUserDto";
-import { PrismaUserRepository } from "../modules/user/repositories/PrismaUserRepository";
+} from "../../use-cases/userUseCase";
+import { UpdateUserDto } from "../../dto/UpdateUserDto";
+import { PrismaUserRepository } from "../../repositories/PrismaUserRepository";
+
 export class UserService {
   private userRepository = new PrismaUserRepository();
   private createUserUseCase = new CreateUserUseCase(this.userRepository);
@@ -35,6 +36,7 @@ export class UserService {
   async getUsers(page: number = 1, pageSize: number = 10) {
     return this.GetUsersUseCase.execute(page, pageSize);
   }
+
   async deleteUser(id: string): Promise<void> {
     return this.DeleteUserUseCase.execute(id);
   }
