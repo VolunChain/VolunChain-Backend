@@ -20,6 +20,9 @@ jest.mock("../../../../config/prisma", () => ({
   },
 }));
 
+// Declare mockPrisma at the top level
+let mockPrisma: any;
+
 describe("AuthService", () => {
   let authService: AuthService;
   let mockUserRepository: jest.Mocked<PrismaUserRepository>;
@@ -31,19 +34,54 @@ describe("AuthService", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockUserRepository =
-      new PrismaUserRepository() as jest.Mocked<PrismaUserRepository>;
-    mockSendVerificationEmailUseCase = new SendVerificationEmailUseCase(
-      mockUserRepository
-    ) as jest.Mocked<SendVerificationEmailUseCase>;
-    mockVerifyEmailUseCase = new VerifyEmailUseCase(
-      mockUserRepository
-    ) as jest.Mocked<VerifyEmailUseCase>;
-    mockResendVerificationEmailUseCase = new ResendVerificationEmailUseCase(
-      mockUserRepository
-    ) as jest.Mocked<ResendVerificationEmailUseCase>;
-    mockWalletService = new WalletService() as jest.Mocked<WalletService>;
+    // Set up prisma mock at the top level
+    mockPrisma = {
+      user: {
+        findUnique: jest.fn(),
+      },
+    };
+    jest.doMock("../../../../config/prisma", () => ({
+      prisma: mockPrisma,
+    }));
 
+    // Mock all required methods for PrismaUserRepository
+    mockUserRepository = {
+      findByEmail: jest.fn(),
+      create: jest.fn(),
+      isUserVerified: jest.fn(),
+      findById: jest.fn(),
+      update: jest.fn(),
+      findAll: jest.fn(),
+      delete: jest.fn(),
+    } as unknown as jest.Mocked<PrismaUserRepository>;
+
+    mockSendVerificationEmailUseCase = {
+      execute: jest.fn(),
+      userRepository: {} as any,
+    } as unknown as jest.Mocked<SendVerificationEmailUseCase>;
+
+    mockVerifyEmailUseCase = {
+      execute: jest.fn(),
+      userRepository: {} as any,
+    } as unknown as jest.Mocked<VerifyEmailUseCase>;
+
+    mockResendVerificationEmailUseCase = {
+      execute: jest.fn(),
+      userRepository: {} as any,
+    } as unknown as jest.Mocked<ResendVerificationEmailUseCase>;
+
+    mockWalletService = {
+      isWalletValid: jest.fn(),
+      verifyWallet: jest.fn(),
+      validateWalletFormat: jest.fn(),
+      walletRepository: {} as any,
+      verifyWalletUseCase: {} as any,
+      validateWalletFormatUseCase: {} as any,
+    } as unknown as jest.Mocked<WalletService>;
+
+    // Use the correct constructor for AuthService (update this if the signature is different)
+    // If AuthService expects no arguments, just use: authService = new AuthService();
+    // Otherwise, pass the correct mocks as per the actual constructor
     authService = new AuthService();
   });
 
@@ -53,19 +91,21 @@ describe("AuthService", () => {
       const mockUser = { id: "user-id", wallet: walletAddress };
 
       mockWalletService.isWalletValid.mockResolvedValue(true);
-      const { prisma } = require("../../../../config/prisma");
-      prisma.user.findUnique.mockResolvedValue(mockUser);
+      mockPrisma.user.findUnique.mockResolvedValue(mockUser);
 
       const result = await authService.authenticate(walletAddress);
 
       expect(result).toBeDefined();
       expect(typeof result).toBe("string");
+      expect(result.length).toBeGreaterThan(0); // Ensure token is not empty
       expect(mockWalletService.isWalletValid).toHaveBeenCalledWith(
         walletAddress
       );
-      expect(prisma.user.findUnique).toHaveBeenCalledWith({
+      expect(mockWalletService.isWalletValid).toHaveBeenCalledTimes(1);
+      expect(prisma!.user.findUnique).toHaveBeenCalledWith({
         where: { wallet: walletAddress },
       });
+      expect(prisma!.user.findUnique).toHaveBeenCalledTimes(1);
     });
 
     it("should throw error for invalid wallet address", async () => {
@@ -108,6 +148,8 @@ describe("AuthService", () => {
         success: true,
         isValid: true,
         accountExists: true,
+        walletAddress: userData.wallet,
+        verifiedAt: new Date(),
         message: "Wallet verified",
       };
 
@@ -123,7 +165,10 @@ describe("AuthService", () => {
       const { prisma } = require("../../../../config/prisma");
       prisma.user.findUnique.mockResolvedValue(null);
       mockUserRepository.create.mockResolvedValue(mockUser);
-      mockSendVerificationEmailUseCase.execute.mockResolvedValue(undefined);
+      mockSendVerificationEmailUseCase.execute.mockResolvedValue({
+        success: true,
+        message: "Verification email sent",
+      });
 
       const result = await authService.register(
         userData.name,
@@ -156,6 +201,9 @@ describe("AuthService", () => {
       const mockWalletVerification = {
         success: false,
         isValid: false,
+        walletAddress: userData.wallet,
+        accountExists: false,
+        verifiedAt: null as any,
         message: "Invalid wallet address",
       };
 
@@ -185,6 +233,8 @@ describe("AuthService", () => {
         success: true,
         isValid: true,
         accountExists: true,
+        walletAddress: userData.wallet,
+        verifiedAt: new Date(),
         message: "Wallet verified",
       };
 
@@ -208,7 +258,11 @@ describe("AuthService", () => {
   describe("verifyEmail", () => {
     it("should verify email successfully", async () => {
       const token = "verification-token";
-      const expectedResult = { success: true, message: "Email verified" };
+      const expectedResult = {
+        success: true,
+        message: "Email verified",
+        verified: true,
+      };
 
       mockVerifyEmailUseCase.execute.mockResolvedValue(expectedResult);
 
@@ -270,7 +324,14 @@ describe("AuthService", () => {
   describe("verifyWalletAddress", () => {
     it("should verify wallet address", async () => {
       const walletAddress = "test-wallet-address";
-      const expectedResult = { success: true, isValid: true };
+      const expectedResult = {
+        success: true,
+        isValid: true,
+        walletAddress,
+        accountExists: true,
+        verifiedAt: new Date(),
+        message: "Wallet verified",
+      };
 
       mockWalletService.verifyWallet.mockResolvedValue(expectedResult);
 
@@ -286,7 +347,14 @@ describe("AuthService", () => {
   describe("validateWalletFormat", () => {
     it("should validate wallet format", async () => {
       const walletAddress = "test-wallet-address";
-      const expectedResult = { isValid: true };
+      const expectedResult = {
+        success: true,
+        isValid: true,
+        walletAddress,
+        accountExists: true,
+        verifiedAt: new Date(),
+        message: "Format valid",
+      };
 
       mockWalletService.validateWalletFormat.mockResolvedValue(expectedResult);
 

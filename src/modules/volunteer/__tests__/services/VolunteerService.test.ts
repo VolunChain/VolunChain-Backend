@@ -1,18 +1,21 @@
 import { describe, it, expect, beforeEach, jest } from "@jest/globals";
 import VolunteerService from "../../application/services/VolunteerService";
-import { VolunteerPrismaRepository } from "../../repositories/implementations/volunteer-prisma.repository";
 import { CreateVolunteerDTO } from "../../dto/volunteer.dto";
 
 jest.mock("../../repositories/implementations/volunteer-prisma.repository");
 
 describe("VolunteerService", () => {
   let volunteerService: VolunteerService;
-  let mockVolunteerRepository: jest.Mocked<VolunteerPrismaRepository>;
 
   beforeEach(() => {
-    mockVolunteerRepository =
-      new VolunteerPrismaRepository() as jest.Mocked<VolunteerPrismaRepository>;
+    jest.clearAllMocks();
     volunteerService = new VolunteerService();
+    // Patch the internal repository instance with manual mocks
+    (volunteerService as any).volunteerRepository = {
+      create: jest.fn(),
+      findById: jest.fn(),
+      // Add other methods as needed
+    };
   });
 
   it("should create a volunteer", async () => {
@@ -21,17 +24,20 @@ describe("VolunteerService", () => {
       description: "desc",
       requirements: "req",
       projectId: "1",
-      maxVolunteers: 5,
     };
-    mockVolunteerRepository.create = jest
-      .fn()
-      .mockResolvedValue({ ...dto, id: "1" });
+    const volunteer = { ...dto, id: "1" } as any;
+    (volunteerService as any).volunteerRepository.create.mockResolvedValue(
+      volunteer
+    );
     const result = await volunteerService.createVolunteer(dto);
     expect(result).toBeDefined();
   });
 
   it("should get volunteer by id", async () => {
-    mockVolunteerRepository.findById = jest.fn().mockResolvedValue({ id: "1" });
+    const volunteer = { id: "1" } as any;
+    (volunteerService as any).volunteerRepository.findById.mockResolvedValue(
+      volunteer
+    );
     const result = await volunteerService.getVolunteerById("1");
     expect(result).toBeDefined();
   });

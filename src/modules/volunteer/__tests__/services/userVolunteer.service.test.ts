@@ -47,6 +47,7 @@ describe("UserVolunteerService", () => {
       wallet: "wallet-address",
       isVerified: true,
       verificationToken: null,
+      verificationTokenExpires: null,
     };
 
     const mockVolunteer: Volunteer = {
@@ -66,6 +67,7 @@ describe("UserVolunteerService", () => {
       userId: mockUser.id,
       volunteerId: mockVolunteer.id,
       joinedAt: new Date(),
+      hoursContributed: 0,
     } as UserVolunteer;
 
     const mockVolunteerWithCount: VolunteerWithCount = {
