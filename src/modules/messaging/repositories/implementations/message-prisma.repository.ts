@@ -1,6 +1,6 @@
-import { PrismaClient } from '@prisma/client';
-import { IMessageRepository } from '../interfaces/message-repository.interface';
-import { Message } from '../../domain/entities/message.entity';
+import { PrismaClient } from "@prisma/client";
+import { IMessageRepository } from "../interfaces/message-repository.interface";
+import { Message } from "../../domain/entities/message.entity";
 
 export class MessagePrismaRepository implements IMessageRepository {
   constructor(private prisma: PrismaClient) {}
@@ -38,17 +38,14 @@ export class MessagePrismaRepository implements IMessageRepository {
     limit: number = 50
   ): Promise<Message[]> {
     const skip = (page - 1) * limit;
-    
+
     const messages = await this.prisma.message.findMany({
       where: {
         volunteerId,
-        OR: [
-          { senderId: userId },
-          { receiverId: userId }
-        ],
+        OR: [{ senderId: userId }, { receiverId: userId }],
       },
       orderBy: {
-        sentAt: 'asc',
+        sentAt: "asc",
       },
       skip,
       take: limit,
@@ -69,7 +66,7 @@ export class MessagePrismaRepository implements IMessageRepository {
     });
 
     return messages.map(
-      (msg) =>
+      (msg: any) =>
         new Message(
           msg.id,
           msg.content,
@@ -144,10 +141,7 @@ export class MessagePrismaRepository implements IMessageRepository {
     const message = await this.prisma.message.findFirst({
       where: {
         id: messageId,
-        OR: [
-          { senderId: userId },
-          { receiverId: userId }
-        ],
+        OR: [{ senderId: userId }, { receiverId: userId }],
       },
     });
 

@@ -1,43 +1,44 @@
-import { PrismaClient, users } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-  const newUser: users = await prisma.users.create({
+  const newUser = await prisma.user.create({
     data: {
-      username: 'john_doe',
-      email: 'john@example.com',
-      password_hash: 'hashed_password',
-      role: 'user'
+      name: "john_doe",
+      email: "john@example.com",
+      password: "hashed_password",
+      wallet: "test-wallet",
+      isVerified: false,
     },
   });
-  console.log('New user created:', newUser);
+  console.log("New user created:", newUser);
 
-  const allUsers: users[] = await prisma.users.findMany();
-  console.log('All users:', allUsers);
+  const allUsers = await prisma.user.findMany();
+  console.log("All users:", allUsers);
 
-  const userByEmail: users | null = await prisma.users.findUnique({
+  const userByEmail = await prisma.user.findUnique({
     where: {
-      email: 'john@example.com'
+      email: "john@example.com",
     },
   });
-  console.log('User found by email:', userByEmail);
+  console.log("User found by email:", userByEmail);
 
-  const updatedUser: users = await prisma.users.update({
+  const updatedUser = await prisma.user.update({
     where: {
       id: newUser.id,
     },
     data: {
-      email: 'john_updated@example.com'
+      email: "john_updated@example.com",
     },
   });
-  console.log('User updated:', updatedUser);
+  console.log("User updated:", updatedUser);
 
-  const deletedUser: users = await prisma.users.delete({
+  const deletedUser = await prisma.user.delete({
     where: {
       id: newUser.id,
     },
   });
-  console.log('User deleted:', deletedUser);
+  console.log("User deleted:", deletedUser);
 }
 
 main()

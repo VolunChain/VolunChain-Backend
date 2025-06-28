@@ -1,6 +1,6 @@
-import { Request } from 'express';
-import { logger as winstonLogger } from '../config/winston.config';
-import { getTraceId } from '../middlewares/traceId.middleware';
+import { Request } from "express";
+import { logger as winstonLogger } from "../../../../config/winston.config";
+import { getTraceId } from "../../../../middlewares/traceId.middleware";
 
 export interface LogContext {
   traceId?: string;
@@ -25,7 +25,7 @@ export interface LogMeta {
 export class LoggerService {
   private context: string;
 
-  constructor(context: string = 'SYSTEM') {
+  constructor(context: string = "SYSTEM") {
     this.context = context;
   }
 
@@ -43,8 +43,8 @@ export class LoggerService {
       method: req.method,
       url: req.url,
       ip: req.ip,
-      userAgent: req.get('User-Agent'),
-      userId: (req as any).user?.id?.toString()
+      userAgent: req.get("User-Agent"),
+      userId: (req as any).user?.id?.toString(),
     };
   }
 
@@ -54,7 +54,7 @@ export class LoggerService {
   private createLogMeta(context: LogContext, meta?: LogMeta): object {
     return {
       ...context,
-      ...(meta && { meta })
+      ...(meta && { meta }),
     };
   }
 
@@ -64,7 +64,7 @@ export class LoggerService {
   info(message: string, req?: Request, meta?: LogMeta): void {
     const context = this.createRequestContext(req);
     const logMeta = this.createLogMeta(context, meta);
-    
+
     winstonLogger.info(message, logMeta);
   }
 
@@ -74,14 +74,19 @@ export class LoggerService {
   warn(message: string, req?: Request, meta?: LogMeta): void {
     const context = this.createRequestContext(req);
     const logMeta = this.createLogMeta(context, meta);
-    
+
     winstonLogger.warn(message, logMeta);
   }
 
   /**
    * Log error level message
    */
-  error(message: string, error?: Error | any, req?: Request, meta?: LogMeta): void {
+  error(
+    message: string,
+    error?: Error | any,
+    req?: Request,
+    meta?: LogMeta
+  ): void {
     const context = this.createRequestContext(req);
     const logMeta = this.createLogMeta(context, {
       ...meta,
@@ -91,11 +96,11 @@ export class LoggerService {
           stack: error.stack,
           name: error.name,
           ...(error.code && { code: error.code }),
-          ...(error.statusCode && { statusCode: error.statusCode })
-        }
-      })
+          ...(error.statusCode && { statusCode: error.statusCode }),
+        },
+      }),
     });
-    
+
     winstonLogger.error(message, logMeta);
   }
 
@@ -105,7 +110,7 @@ export class LoggerService {
   debug(message: string, req?: Request, meta?: LogMeta): void {
     const context = this.createRequestContext(req);
     const logMeta = this.createLogMeta(context, meta);
-    
+
     winstonLogger.debug(message, logMeta);
   }
 
@@ -119,41 +124,52 @@ export class LoggerService {
       headers: req.headers,
       query: req.query,
       params: req.params,
-      body: this.sanitizeBody(req.body)
+      body: this.sanitizeBody(req.body),
     });
 
-    winstonLogger.info('Incoming HTTP Request', logMeta);
+    winstonLogger.info("Incoming HTTP Request", logMeta);
   }
 
   /**
    * Log HTTP response
    */
-  logResponse(req: Request, statusCode: number, responseTime?: number, meta?: LogMeta): void {
+  logResponse(
+    req: Request,
+    statusCode: number,
+    responseTime?: number,
+    meta?: LogMeta
+  ): void {
     const context = this.createRequestContext(req);
     const logMeta = this.createLogMeta(context, {
       ...meta,
       statusCode,
-      ...(responseTime && { responseTime: `${responseTime}ms` })
+      ...(responseTime && { responseTime: `${responseTime}ms` }),
     });
 
-    const level = statusCode >= 400 ? 'warn' : 'info';
-    winstonLogger[level]('HTTP Response', logMeta);
+    const level = statusCode >= 400 ? "warn" : "info";
+    winstonLogger[level]("HTTP Response", logMeta);
   }
 
   /**
    * Sanitize request body to remove sensitive information
    */
   private sanitizeBody(body: any): any {
-    if (!body || typeof body !== 'object') {
+    if (!body || typeof body !== "object") {
       return body;
     }
 
-    const sensitiveFields = ['password', 'token', 'secret', 'key', 'authorization'];
+    const sensitiveFields = [
+      "password",
+      "token",
+      "secret",
+      "key",
+      "authorization",
+    ];
     const sanitized = { ...body };
 
     for (const field of sensitiveFields) {
       if (sanitized[field]) {
-        sanitized[field] = '[REDACTED]';
+        sanitized[field] = "[REDACTED]";
       }
     }
 
@@ -169,7 +185,7 @@ export class LoggerService {
 }
 
 // Export singleton instance for global use
-export const globalLogger = new LoggerService('GLOBAL');
+export const globalLogger = new LoggerService("GLOBAL");
 
 // Export factory function for creating context-specific loggers
 export const createLogger = (context: string): LoggerService => {

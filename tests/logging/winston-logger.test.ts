@@ -1,8 +1,9 @@
 import { Request } from 'express';
-import { LoggerService, createLogger } from '../../src/services/logger.service';
+import { LoggerService, createLogger } from '../../src/modules/shared/application/services/LoggerService';
 import { traceIdMiddleware, getTraceId } from '../../src/middlewares/traceId.middleware';
 import fs from 'fs';
 import path from 'path';
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 
 // Mock Winston logger
 jest.mock('../../src/config/winston.config', () => ({

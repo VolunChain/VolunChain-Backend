@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { ValidationError } from "../errors";
+import { ValidationError } from "../../../../errors";
 import { Prisma, Organization, NFT } from "@prisma/client";
 
 type OrganizationWithNFTs = Prisma.OrganizationGetPayload<{
@@ -7,7 +7,6 @@ type OrganizationWithNFTs = Prisma.OrganizationGetPayload<{
 }>;
 
 type OrganizationUpdateData = Prisma.OrganizationUpdateInput;
-
 
 interface PrismaOrganization {
   id: string;
@@ -29,11 +28,6 @@ interface PrismaNFT {
   organizationId: string;
   description: string;
 }
-
-// type OrganizationWithNFTs = PrismaOrganization;
-// type OrganizationUpdateData = Partial<
-//   Omit<PrismaOrganization, "id" | "createdAt" | "updatedAt">
-// >;
 
 export class OrganizationService {
   private prisma = new PrismaClient();
@@ -182,4 +176,4 @@ export class OrganizationService {
       total 
     };
   }
-}
+} 

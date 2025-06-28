@@ -1,9 +1,9 @@
-import { NFTRepository } from "../modules/nft/repositories/nft.repository";
-import { CreateNFT } from "../modules/nft/use-cases/createNFT";
-import { GetNFT } from "../modules/nft/use-cases/getNFT";
-import { GetNFTByUserId } from "../modules/nft/use-cases/getNFTByUserId";
-import { CreateNFTDto } from "../modules/nft/dto/create-nft.dto";
-import { DeleteNFT } from "../modules/nft/use-cases/deleteNFT";
+import { NFTRepository } from "../../repositories/nft.repository";
+import { CreateNFT } from "../../use-cases/createNFT";
+import { GetNFT } from "../../use-cases/getNFT";
+import { GetNFTByUserId } from "../../use-cases/getNFTByUserId";
+import { CreateNFTDto } from "../../dto/create-nft.dto";
+import { DeleteNFT } from "../../use-cases/deleteNFT";
 
 export class NFTService {
   private nftRepository = new NFTRepository();
