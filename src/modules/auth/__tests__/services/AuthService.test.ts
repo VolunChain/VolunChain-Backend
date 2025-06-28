@@ -102,10 +102,10 @@ describe("AuthService", () => {
         walletAddress
       );
       expect(mockWalletService.isWalletValid).toHaveBeenCalledTimes(1);
-      expect(prisma!.user.findUnique).toHaveBeenCalledWith({
+      expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
         where: { wallet: walletAddress },
       });
-      expect(prisma!.user.findUnique).toHaveBeenCalledTimes(1);
+      expect(mockPrisma.user.findUnique).toHaveBeenCalledTimes(1);
     });
 
     it("should throw error for invalid wallet address", async () => {
@@ -125,8 +125,7 @@ describe("AuthService", () => {
       const walletAddress = "test-wallet-address";
 
       mockWalletService.isWalletValid.mockResolvedValue(true);
-      const { prisma } = require("../../../../config/prisma");
-      prisma.user.findUnique.mockResolvedValue(null);
+      mockPrisma.user.findUnique.mockResolvedValue(null);
 
       await expect(authService.authenticate(walletAddress)).rejects.toThrow(
         "User not found"
@@ -162,8 +161,7 @@ describe("AuthService", () => {
 
       mockWalletService.verifyWallet.mockResolvedValue(mockWalletVerification);
       mockUserRepository.findByEmail.mockResolvedValue(null);
-      const { prisma } = require("../../../../config/prisma");
-      prisma.user.findUnique.mockResolvedValue(null);
+      mockPrisma.user.findUnique.mockResolvedValue(null);
       mockUserRepository.create.mockResolvedValue(mockUser);
       mockSendVerificationEmailUseCase.execute.mockResolvedValue({
         success: true,
