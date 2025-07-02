@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { ValidationError } from "../errors";
+import { ValidationError } from "../modules/shared/application/errors";
 import { Prisma, Organization, NFT } from "@prisma/client";
 
 type OrganizationWithNFTs = Prisma.OrganizationGetPayload<{

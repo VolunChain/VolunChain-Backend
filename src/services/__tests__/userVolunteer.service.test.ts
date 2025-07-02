@@ -2,7 +2,7 @@ import { describe, expect, it, beforeEach, jest } from '@jest/globals';
 import { UserVolunteerService } from '../userVolunteer.service';
 import { PrismaClient, Prisma, User, Volunteer, UserVolunteer } from '@prisma/client';
 import { DeepMockProxy, mockDeep } from 'jest-mock-extended';
-import { VolunteerAlreadyRegisteredError, VolunteerNotFoundError, VolunteerPositionFullError } from '../../errors/VolunteerRegistrationError';
+import { VolunteerAlreadyRegisteredError, VolunteerNotFoundError, VolunteerPositionFullError } from '../../modules/volunteer/application/errors';
 
 // Mock PrismaClient with proper type
 const mockPrisma: DeepMockProxy<PrismaClient> = mockDeep<PrismaClient>();

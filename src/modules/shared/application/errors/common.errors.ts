@@ -1,23 +1,4 @@
-export class CustomError extends Error {
-  constructor(
-    public code: string,
-    public message: string,
-    public statusCode: number,
-    public details?: Record<string, unknown>
-  ) {
-    super(message);
-    Object.setPrototypeOf(this, new.target.prototype);
-  }
-
-  public toJSON() {
-    return {
-      statusCode: this.statusCode,
-      message: this.message,
-      errorCode: this.code,
-      ...(this.details && { details: this.details }),
-    };
-  }
-}
+import { DomainException } from "../../domain/exceptions/domain.exception";
 
 // HTTP Status codes for different types of errors
 export const HttpStatus = {
@@ -39,6 +20,33 @@ export const ErrorCodes = {
   RESOURCE_CONFLICT: "RESOURCE_CONFLICT",
   INTERNAL_ERROR: "INTERNAL_ERROR",
 } as const;
+
+export class CustomError extends DomainException {
+  public readonly code: string;
+  public readonly statusCode: number;
+  public readonly details?: Record<string, unknown>;
+
+  constructor(
+    code: string,
+    message: string,
+    statusCode: number,
+    details?: Record<string, unknown>
+  ) {
+    super(message);
+    this.code = code;
+    this.statusCode = statusCode;
+    this.details = details;
+  }
+
+  public toJSON() {
+    return {
+      statusCode: this.statusCode,
+      message: this.message,
+      errorCode: this.code,
+      ...(this.details && { details: this.details }),
+    };
+  }
+}
 
 export class ValidationError extends CustomError {
   constructor(message: string, details?: Record<string, unknown>) {
@@ -113,4 +121,4 @@ export class InternalServerError extends CustomError {
       details
     );
   }
-}
+} 
