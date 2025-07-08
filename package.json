@@ -4,6 +4,8 @@
   "type": "commonjs",
   "main": "dist/index.js",
   "scripts": {
+    "test:dto": "jest --runInBand src/modules/auth/__tests__/dto --detectOpenHandles",
+    "test:dto:independent": "jest --runInBand src/modules/auth/__tests__/dto --detectOpenHandles",
     "dev": "ts-node-dev src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
@@ -71,7 +73,7 @@
     "@types/supertest": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^8.22.0",
     "@typescript-eslint/parser": "^8.22.0",
-    "eslint": "^9.28.0",
+    "eslint": "^9.30.0",
     "globals": "^15.14.0",
     "husky": "^9.1.7",
     "jest": "^29.7.0",

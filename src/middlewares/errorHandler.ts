@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { CustomError, InternalServerError } from "../errors";
+import { CustomError, InternalServerError } from "../modules/shared/application/errors";
 import { createLogger } from "../modules/shared/application/services/LoggerService";
 
 const logger = createLogger("ERROR_HANDLER");

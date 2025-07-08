@@ -3,7 +3,10 @@ import { Project } from "../../../../entities/Project";
 import { Volunteer } from "../../../../entities/Volunteer";
 import { withTransaction } from "../../../../utils/transaction.helper";
 import { Logger } from "../../../../utils/logger";
-import { ValidationError, DatabaseError } from "../../../../errors";
+import {
+  ValidationError,
+  DatabaseError,
+} from "../../../../modules/shared/application/errors";
 
 // Define types based on the Prisma schema
 interface PrismaProject {

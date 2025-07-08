@@ -1,11 +1,32 @@
-export abstract class BaseEntity {
-  public readonly id?: string;
-  public readonly createdAt?: Date;
-  public readonly updatedAt?: Date;
+import { PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from "typeorm"
 
-  constructor(id?: string, createdAt?: Date, updatedAt?: Date) {
-    this.id = id;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
+export abstract class BaseEntity {
+  @PrimaryGeneratedColumn("uuid")
+  id: string
+
+  @CreateDateColumn()
+  createdAt: Date
+
+  @UpdateDateColumn()
+  updatedAt: Date
+}
+
+export abstract class Entity<T> {
+  protected readonly props: T
+
+  constructor(props: T) {
+    this.props = props
+  }
+
+  public equals(entity: Entity<T>): boolean {
+    if (entity === null || entity === undefined) {
+      return false
+    }
+
+    if (this === entity) {
+      return true
+    }
+
+    return JSON.stringify(this.props) === JSON.stringify(entity.props)
   }
 }

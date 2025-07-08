@@ -12,7 +12,7 @@ import {
   VolunteerAlreadyRegisteredError,
   VolunteerNotFoundError,
   VolunteerPositionFullError,
-} from "../../../../errors/VolunteerRegistrationError";
+} from "../../../../modules/volunteer/application/errors";
 
 // Mock PrismaClient with proper type
 const mockPrisma: DeepMockProxy<PrismaClient> = mockDeep<PrismaClient>();

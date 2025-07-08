@@ -6,7 +6,7 @@ import {
   ResourceNotFoundError,
   InternalServerError,
   CustomError,
-} from "../../src/errors";
+} from "../../src/modules/shared/application/errors";
 
 describe("Error Handler Middleware", () => {
   let mockRequest: Partial<Request>;

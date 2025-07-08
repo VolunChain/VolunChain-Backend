@@ -1,4 +1,4 @@
-import { Volunteer } from "../../domain/volunteer.entity";
+import { Volunteer } from "../../domain/entities/volunteer.entity";
 import { VolunteerPrismaRepository } from "../../repositories/implementations/volunteer-prisma.repository";
 import { CreateVolunteerUseCase } from "../../use-cases/create-volunteer.use-case";
 import { GetVolunteersByProjectUseCase } from "../../use-cases/get-volunteers-by-project.use-case";

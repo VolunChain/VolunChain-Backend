@@ -1,6 +1,6 @@
 import { IUserRepository } from "../domain/interfaces/IUserRepository";
 import { CreateUserDto } from "../dto/CreateUserDto";
-import { User } from "../domain/entities/User";
+import { User } from "../domain/entities/User.entity";
 import bcrypt from "bcryptjs";
 import { UpdateUserDto } from "../dto/UpdateUserDto";
 

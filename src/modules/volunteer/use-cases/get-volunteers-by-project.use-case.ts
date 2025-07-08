@@ -1,4 +1,4 @@
-import { Volunteer } from "../domain/volunteer.entity";
+import { Volunteer } from "../domain/entities/volunteer.entity";
 import { IVolunteerRepository } from "../repositories/interfaces/volunteer-repository.interface";
 
 export class GetVolunteersByProjectUseCase {

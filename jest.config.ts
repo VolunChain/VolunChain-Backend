@@ -1,33 +1,37 @@
-const { config } = require('dotenv');
-config({ path: '.env.test' });
+import { config } from "dotenv";
+
+config({ path: ".env.test" });
 
 /** @type {import('ts-jest').JestConfigWithTsJest} */
-module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  roots: ['<rootDir>/tests'],
+export default {
+  preset: "ts-jest",
+  testEnvironment: "node",
+  roots: ["<rootDir>/tests", "<rootDir>/src"],
   transform: {
-    '^.+\\.tsx?$': [
-      'ts-jest',
+    "^.+\\.tsx?$": [
+      "ts-jest",
       {
-        tsconfig: './tsconfig.json',
+        tsconfig: "./tsconfig.json",
       },
     ],
   },
   testMatch: [
-    '**/tests/**/*.test.ts',
-    '**/__tests__/**/*.test.ts',
-    '(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$',
+    "**/tests/**/*.test.ts",
+    "**/__tests__/**/*.test.ts",
+    "(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$",
+    "**/src/**/__tests__/**/*.test.ts",
+    "**/src/**/*.test.ts",
   ],
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
+    "^@/(.*)$": "<rootDir>/src/$1",
+    "^@prisma/client$": "<rootDir>/tests/__mocks__/prisma.ts",
   },
   collectCoverageFrom: [
-    'src/**/*.{js,ts}',
-    '!**/node_modules/**',
-    '!**/tests/**',
+    "src/**/*.{js,ts}",
+    "!**/node_modules/**",
+    "!**/tests/**",
   ],
-  coverageDirectory: 'coverage',
+  coverageDirectory: "coverage",
   testTimeout: 30000,
 };
