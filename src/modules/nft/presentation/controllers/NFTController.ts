@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
-import NFTService from "../modules/nft/application/services/NFTService";
-
+import NFTService from "../../../../modules/nft/application/services/NFTService";
 class NFTController {
   // Creates_a_new_NFT_and_returns_the_created_NFT_data_OKK!!
   async createNFT(req: Request, res: Response) {

@@ -1,8 +1,8 @@
-import { CreateUserDto } from "../modules/user/dto/CreateUserDto";
-import { UserService } from "../modules/user/application/services/UserService";
+import { UserService } from "../../../../modules/user/application/services/UserService";
+import { CreateUserDto } from "../../../../modules/user/dto/CreateUserDto";
 import { Response } from "express";
-import { UpdateUserDto } from "../modules/user/dto/UpdateUserDto";
-import { AuthenticatedRequest } from "../types/auth.types";
+import { UpdateUserDto } from "../../../../modules/user/dto/UpdateUserDto";
+import { AuthenticatedRequest } from "../../../../types/auth.types";
 
 class UserController {
   private userService = new UserService();

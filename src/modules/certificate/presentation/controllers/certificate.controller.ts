@@ -1,8 +1,8 @@
-import { Request, Response } from "express";
-import { container } from "../shared/infrastructure/container";
-import { prisma } from "../config/prisma";
-import { ICertificateService } from "../shared/domain/interfaces/ICertificateService";
-import { AuthenticatedRequest } from "../types/auth.types";
+import { container } from "../../../../shared/infrastructure/container";
+import { prisma } from "../../../../config/prisma";
+import { ICertificateService } from "../../../../shared/domain/interfaces/ICertificateService";
+import { AuthenticatedRequest } from "../../../../types/auth.types";
+import { Response } from "express";
 
 const certificateService: ICertificateService = container.certificateService;
 

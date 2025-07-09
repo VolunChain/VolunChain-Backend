@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { UserVolunteerService } from "../modules/volunteer/application/services/UserVolunteerService";
-import { prisma } from "../config/prisma";
+import { UserVolunteerService } from "../../../../modules/volunteer/application/services/UserVolunteerService";
+import { prisma } from "../../../../config/prisma";
 
 class UserVolunteerController {
   private userVolunteerService = new UserVolunteerService(prisma);
