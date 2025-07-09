@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { OrganizationService } from "../../../../services/OrganizationService";
+import { OrganizationService } from "../../../organization/application/services/OrganizationService";
 import { asyncHandler } from "../../../../utils/asyncHandler";
 
 class OrganizationController {

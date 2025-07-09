@@ -1,11 +1,11 @@
-import { Volunteer } from "../modules/volunteer/domain/entities/volunteer.entity";
-import { VolunteerPrismaRepository } from "../modules/volunteer/repositories/implementations/volunteer-prisma.repository";
-import { CreateVolunteerUseCase } from "../modules/volunteer/use-cases/create-volunteer.use-case";
-import { GetVolunteersByProjectUseCase } from "../modules/volunteer/use-cases/get-volunteers-by-project.use-case";
+import { Volunteer } from "../../domain/entities/volunteer.entity";
+import { VolunteerPrismaRepository } from "../../repositories/implementations/volunteer-prisma.repository";
+import { CreateVolunteerUseCase } from "../../use-cases/create-volunteer.use-case";
+import { GetVolunteersByProjectUseCase } from "../../use-cases/get-volunteers-by-project.use-case";
 import {
   CreateVolunteerDTO,
   UpdateVolunteerDTO,
-} from "../modules/volunteer/dto/volunteer.dto";
+} from "../../dto/volunteer.dto";
 
 export default class VolunteerService {
   private volunteerRepository: VolunteerPrismaRepository;

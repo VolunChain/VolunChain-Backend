@@ -3,7 +3,7 @@ import {
   VolunteerAlreadyRegisteredError,
   VolunteerNotFoundError,
   VolunteerPositionFullError,
-} from "../modules/volunteer/application/errors";
+} from "../../../../modules/volunteer/application/errors";
 
 export class UserVolunteerService {
   constructor(private prisma: PrismaClient) {}

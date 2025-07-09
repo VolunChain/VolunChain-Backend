@@ -1,5 +1,5 @@
-import { Server, Transaction, xdr } from 'soroban-client';
-import { sorobanConfig } from '../../config/soroban.config';
+import { Server, Transaction, xdr } from "soroban-client";
+import { sorobanConfig } from "../../../../config/soroban.config";
 
 export class SorobanService {
   private server: Server;
@@ -9,7 +9,7 @@ export class SorobanService {
     this.server = new Server(sorobanConfig.rpcUrl);
     // Ensure serverSecret is not undefined
     if (!sorobanConfig.serverSecret) {
-      throw new Error('SOROBAN_SERVER_SECRET is required');
+      throw new Error("SOROBAN_SERVER_SECRET is required");
     }
     this.serverSecret = sorobanConfig.serverSecret;
   }
@@ -26,7 +26,7 @@ export class SorobanService {
       const response = await this.server.sendTransaction(transaction);
       return response.hash;
     } catch (error: any) {
-      console.error('Error submitting transaction:', error);
+      console.error("Error submitting transaction:", error);
       throw new Error(`Failed to submit transaction: ${error.message}`);
     }
   }
@@ -47,7 +47,7 @@ export class SorobanService {
       // Note: The actual method name may vary depending on the soroban-client version
       // This is a placeholder - you'll need to check the actual API documentation
       // or inspect the Server object to find the correct method
-      
+
       // Example implementation - adjust based on actual API
       // @ts-ignore - Ignoring type checking until we know the exact API
       const result = await this.server.invokeContract(
@@ -57,7 +57,7 @@ export class SorobanService {
       );
       return result;
     } catch (error: any) {
-      console.error('Error invoking contract method:', error);
+      console.error("Error invoking contract method:", error);
       throw new Error(
         `Failed to invoke contract method ${methodName}: ${error.message}`
       );
@@ -66,4 +66,4 @@ export class SorobanService {
 }
 
 // Export a singleton instance
-export const sorobanService = new SorobanService(); 
+export const sorobanService = new SorobanService();

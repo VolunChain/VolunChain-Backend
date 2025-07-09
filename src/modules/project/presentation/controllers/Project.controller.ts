@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import ProjectService from "../../../../services/ProjectService";
+import ProjectService from "../../../../modules/project/application/services/ProjectService";
 
 class ProjectController {
   private projectService = new ProjectService();

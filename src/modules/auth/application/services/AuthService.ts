@@ -1,11 +1,11 @@
-import bcrypt from 'bcryptjs';
-import { prisma } from "../config/prisma";
-import jwt from 'jsonwebtoken';
-import { PrismaUserRepository } from '../modules/user/repositories/PrismaUserRepository';
-import { SendVerificationEmailUseCase } from '../modules/auth/use-cases/send-verification-email.usecase';
-import { VerifyEmailUseCase } from '../modules/auth/use-cases/verify-email.usecase';
-import { ResendVerificationEmailUseCase } from '../modules/auth/use-cases/resend-verification-email.usecase';
-import { WalletService } from '../modules/wallet/services/WalletService';
+import bcrypt from "bcryptjs";
+import { prisma } from "../../../../config/prisma";
+import jwt from "jsonwebtoken";
+import { PrismaUserRepository } from "../../../user/repositories/PrismaUserRepository";
+import { SendVerificationEmailUseCase } from "../../use-cases/send-verification-email.usecase";
+import { VerifyEmailUseCase } from "../../use-cases/verify-email.usecase";
+import { ResendVerificationEmailUseCase } from "../../use-cases/resend-verification-email.usecase";
+import { WalletService } from "../../../wallet/services/WalletService";
 
 class AuthService {
   private userRepository: PrismaUserRepository;
@@ -16,9 +16,13 @@ class AuthService {
 
   constructor() {
     this.userRepository = new PrismaUserRepository();
-    this.sendVerificationEmailUseCase = new SendVerificationEmailUseCase(this.userRepository);
+    this.sendVerificationEmailUseCase = new SendVerificationEmailUseCase(
+      this.userRepository
+    );
     this.verifyEmailUseCase = new VerifyEmailUseCase(this.userRepository);
-    this.resendVerificationEmailUseCase = new ResendVerificationEmailUseCase(this.userRepository);
+    this.resendVerificationEmailUseCase = new ResendVerificationEmailUseCase(
+      this.userRepository
+    );
     this.walletService = new WalletService();
   }
 
@@ -42,17 +46,25 @@ class AuthService {
     return jwt.sign({ id: user.id }, SECRET_KEY, { expiresIn: "1h" });
   }
 
-  async register(name: string, lastName: string, email: string, password: string, wallet: string) {
+  async register(
+    name: string,
+    lastName: string,
+    email: string,
+    password: string,
+    wallet: string
+  ) {
     // Verify wallet address first
     const walletVerification = await this.walletService.verifyWallet(wallet);
     if (!walletVerification.success || !walletVerification.isValid) {
-      throw new Error(`Wallet verification failed: ${walletVerification.message}`);
+      throw new Error(
+        `Wallet verification failed: ${walletVerification.message}`
+      );
     }
 
     // Check if user already exists by email
     const existingUser = await this.userRepository.findByEmail(email);
     if (existingUser) {
-      throw new Error('User with this email already exists');
+      throw new Error("User with this email already exists");
     }
 
     // Check if wallet is already registered
@@ -60,7 +72,7 @@ class AuthService {
       where: { wallet: wallet },
     });
     if (existingWalletUser) {
-      throw new Error('This wallet address is already registered');
+      throw new Error("This wallet address is already registered");
     }
 
     // Hash password
@@ -69,7 +81,7 @@ class AuthService {
 
     // Create user
     const user = await this.userRepository.create({
-      id: '',
+      id: "",
       name,
       lastName,
       email,
@@ -87,7 +99,8 @@ class AuthService {
       email: user.email,
       wallet: user.wallet,
       walletVerified: walletVerification.accountExists,
-      message: 'User registered successfully. Please check your email to verify your account.',
+      message:
+        "User registered successfully. Please check your email to verify your account.",
     };
   }
 
@@ -103,9 +116,7 @@ class AuthService {
     const isVerified = await this.userRepository.isUserVerified(userId);
     return {
       isVerified,
-      message: isVerified
-        ? "Email is verified"
-        : "Email is not verified"
+      message: isVerified ? "Email is verified" : "Email is not verified",
     };
   }
 

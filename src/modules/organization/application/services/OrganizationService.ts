@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { ValidationError } from "../modules/shared/application/errors";
+import { ValidationError } from "../modules/shared/application/../../../errors";
 import { Prisma, Organization, NFT } from "@prisma/client";
 
 type OrganizationWithNFTs = Prisma.OrganizationGetPayload<{
@@ -7,7 +7,6 @@ type OrganizationWithNFTs = Prisma.OrganizationGetPayload<{
 }>;
 
 type OrganizationUpdateData = Prisma.OrganizationUpdateInput;
-
 
 interface PrismaOrganization {
   id: string;
@@ -29,11 +28,6 @@ interface PrismaNFT {
   organizationId: string;
   description: string;
 }
-
-// type OrganizationWithNFTs = PrismaOrganization;
-// type OrganizationUpdateData = Partial<
-//   Omit<PrismaOrganization, "id" | "createdAt" | "updatedAt">
-// >;
 
 export class OrganizationService {
   private prisma = new PrismaClient();
@@ -65,7 +59,7 @@ export class OrganizationService {
       data: {
         name,
         email,
-        password, 
+        password,
         category,
         wallet,
       },
@@ -103,12 +97,13 @@ export class OrganizationService {
     if (!organization) {
       throw new ValidationError("Organization not found");
     }
-  
+
     // Extract the updated email value
-    const updatedEmail = typeof updateData.email === "object" && updateData.email !== null
-      ? updateData.email.set
-      : updateData.email;
-  
+    const updatedEmail =
+      typeof updateData.email === "object" && updateData.email !== null
+        ? updateData.email.set
+        : updateData.email;
+
     if (updatedEmail && updatedEmail !== organization.email) {
       const existingOrgEmail = await this.prisma.organization.findUnique({
         where: { email: updatedEmail },
@@ -119,12 +114,13 @@ export class OrganizationService {
         );
       }
     }
-  
+
     // Extract the updated wallet value
-    const updatedWallet = typeof updateData.wallet === "object" && updateData.wallet !== null
-      ? updateData.wallet.set
-      : updateData.wallet;
-  
+    const updatedWallet =
+      typeof updateData.wallet === "object" && updateData.wallet !== null
+        ? updateData.wallet.set
+        : updateData.wallet;
+
     if (updatedWallet && updatedWallet !== organization.wallet) {
       const existingOrgWallet = await this.prisma.organization.findUnique({
         where: { wallet: updatedWallet },
@@ -135,7 +131,7 @@ export class OrganizationService {
         );
       }
     }
-  
+
     return this.prisma.organization.update({
       where: { id },
       data: updateData,
@@ -144,7 +140,6 @@ export class OrganizationService {
       },
     }) as unknown as OrganizationWithNFTs;
   }
-  
 
   async deleteOrganization(id: string): Promise<void> {
     const organization = await this.getOrganizationById(id);
@@ -177,9 +172,9 @@ export class OrganizationService {
       this.prisma.organization.count(),
     ]);
 
-    return { 
-      organizations: organizations as unknown as OrganizationWithNFTs[], 
-      total 
+    return {
+      organizations: organizations as unknown as OrganizationWithNFTs[],
+      total,
     };
   }
 }

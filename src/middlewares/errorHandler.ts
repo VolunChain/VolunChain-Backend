@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { CustomError, InternalServerError } from "../modules/shared/application/errors";
-import { createLogger } from "../services/logger.service";
+import { createLogger } from "../modules/shared/application/services/LoggerService";
 
-const logger = createLogger('ERROR_HANDLER');
+const logger = createLogger("ERROR_HANDLER");
 
 interface ErrorLogInfo {
   timestamp: string;
@@ -36,17 +36,12 @@ export const errorHandler = (
   }
 
   // Log error with Winston including trace ID and context
-  logger.error(
-    'Unhandled error occurred',
-    err,
-    req,
-    {
-      path: req.path,
-      method: req.method,
-      timestamp: new Date().toISOString(),
-      errorType: err.constructor.name
-    }
-  );
+  logger.error("Unhandled error occurred", err, req, {
+    path: req.path,
+    method: req.method,
+    timestamp: new Date().toISOString(),
+    errorType: err.constructor.name,
+  });
 
   // Handle different types of errors
   if (err instanceof CustomError) {
@@ -54,7 +49,7 @@ export const errorHandler = (
       code: err.code,
       message: err.message,
       ...(err.details && { details: err.details }),
-      ...(req.traceId && { traceId: req.traceId })
+      ...(req.traceId && { traceId: req.traceId }),
     });
   }
 
@@ -65,6 +60,6 @@ export const errorHandler = (
 
   return res.status(internalError.statusCode).json({
     ...internalError.toJSON(),
-    ...(req.traceId && { traceId: req.traceId })
+    ...(req.traceId && { traceId: req.traceId }),
   });
 };

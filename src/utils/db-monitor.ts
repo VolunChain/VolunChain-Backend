@@ -20,7 +20,6 @@ export class DatabaseMonitor {
 
   private setupQueryLogging() {
     if (process.env.ENABLE_QUERY_LOGGING === "true") {
-      // @ts-expect-error Prisma types don't include query event
       this.prisma.$on("query", (e: QueryEvent) => {
         const startTime = performance.now();
         const queryId = `${e.query}${Date.now()}`;

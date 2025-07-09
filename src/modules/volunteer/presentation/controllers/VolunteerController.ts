@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import VolunteerService from "../../../../services/VolunteerService";
+import VolunteerService from "../../../../modules/volunteer/application/services/VolunteerService";
 import { CreateVolunteerDTO } from "../../../../modules/volunteer/dto/volunteer.dto";
 
 export default class VolunteerController {
