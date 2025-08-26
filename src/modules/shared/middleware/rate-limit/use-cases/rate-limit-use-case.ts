@@ -5,6 +5,7 @@ import {
   RateLimitConfig,
   DEFAULT_RATE_LIMIT_CONFIG,
 } from "../domain/rate-limit-config";
+import { RateLimitExceededException } from "../domain/exceptions/rate-limit-exceeded.exception";
 
 export class RateLimitUseCase {
   private repository: RedisRateLimitRepository;
@@ -29,7 +30,7 @@ export class RateLimitUseCase {
 
   async checkRateLimit(
     req: Request
-  ): Promise<{ allowed: boolean; remaining: number; retryAfter: number }> {
+  ): Promise<{ remaining: number; retryAfter: number }> {
     const identifier = this.getIdentifier(req);
     const routeType = this.getRouteType(req.originalUrl);
     const routeConfig = this.config.routes[routeType];
@@ -47,6 +48,10 @@ export class RateLimitUseCase {
       routeConfig.maxRequests
     );
 
-    return { allowed, remaining, retryAfter: routeConfig.windowMinutes };
+    if (!allowed) {
+      throw new RateLimitExceededException(routeConfig.windowMinutes);
+    }
+
+    return { remaining, retryAfter: routeConfig.windowMinutes };
   }
 }
