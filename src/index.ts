@@ -9,19 +9,10 @@ import { errorHandler } from "./middlewares/errorHandler";
 import { dbPerformanceMiddleware } from "./middlewares/dbPerformanceMiddleware";
 import { setupRateLimiting } from "./middleware/rateLimitMiddleware";
 import { cronManager } from "./utils/cron";
-import apiRouter from "./routes";
+
 import { traceIdMiddleware } from "./middlewares/traceId.middleware";
 import { requestLoggerMiddleware } from "./middlewares/requestLogger.middleware";
-import authRoutes from "./routes/authRoutes";
-import router from "./routes/nftRoutes";
-import userRoutes from "./routes/userRoutes";
-import metricsRoutes from "./modules/metrics/routes/metrics.routes";
-import certificateRoutes from "./routes/certificatesRoutes";
-import volunteerRoutes from "./routes/VolunteerRoutes";
-import projectRoutes from "./routes/ProjectRoutes";
-import organizationRoutes from "./routes/OrganizationRoutes";
-import messageRoutes from "./modules/messaging/routes/messaging.routes";
-import testRoutes from "./routes/testRoutes";
+import apiRouter from "./routes";
 import { Logger } from "./utils/logger";
 
 const globalLogger = new Logger("VolunChain");
@@ -145,30 +136,8 @@ app.get("/health", async (req, res) => {
   res.status(httpStatus).json(healthStatus);
 });
 
-// API Routes with versioning
+// API Routes
 app.use("/api", apiRouter);
-
-// Authentication routes
-app.use("/auth", authRoutes);
-
-// NFT routes
-app.use("/nft", router);
-
-// User routes
-app.use("/users", userRoutes);
-
-// Metrics routes
-app.use("/metrics", metricsRoutes);
-
-// Other routes
-app.use("/certificate", certificateRoutes);
-app.use("/projects", projectRoutes);
-app.use("/volunteers", volunteerRoutes);
-app.use("/organizations", organizationRoutes);
-router.use("/messages", messageRoutes);
-
-// Test routes
-app.use("/test", testRoutes);
 
 // Initialize the database and start the server
 prisma
@@ -186,13 +155,10 @@ prisma
         globalLogger.info("Cron jobs initialized successfully!");
 
         app.listen(PORT, () => {
-          globalLogger.info(
-            `Server is running on http://localhost:${PORT}`,
-            {
-              port: PORT,
-              environment: ENV,
-            }
-          );
+          globalLogger.info(`Server is running on http://localhost:${PORT}`, {
+            port: PORT,
+            environment: ENV,
+          });
 
           if (ENV === "development") {
             globalLogger.info(

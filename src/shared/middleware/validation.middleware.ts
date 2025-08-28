@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { validate, ValidationError } from "class-validator";
 import { plainToClass } from "class-transformer";
+import { ParsedQs } from "qs";
 
 export interface ValidationErrorResponse {
   success: false;
@@ -77,7 +78,7 @@ export function validateQueryDto<T extends object>(dtoClass: new () => T) {
         return;
       }
 
-      req.query = dto as Record<string, unknown>;
+      req.query = dto as unknown as ParsedQs;
       next();
     } catch {
       res.status(500).json({
@@ -124,4 +125,47 @@ export function validateParamsDto<T extends object>(dtoClass: new () => T) {
       });
     }
   };
+}
+
+/**
+ * Validates a DTO and returns it if valid, or sends a 400 response if invalid
+ * @param dtoClass - The DTO class to validate against
+ * @param payload - The payload to validate
+ * @param res - Express response object
+ * @returns The validated DTO or undefined if validation failed
+ */
+export async function validateOr400<T extends object>(
+  dtoClass: new () => T,
+  payload: unknown,
+  res: Response
+): Promise<T | undefined> {
+  try {
+    const dto = plainToClass(dtoClass, payload);
+    const errors = await validate(dto);
+
+    if (errors.length > 0) {
+      const errorResponse: ValidationErrorResponse = {
+        success: false,
+        error: "Validation failed",
+        details: errors.map((error: ValidationError) => ({
+          property: error.property,
+          value: error.value,
+          constraints: error.constraints
+            ? Object.values(error.constraints)
+            : [],
+        })),
+      };
+
+      res.status(400).json(errorResponse);
+      return undefined;
+    }
+
+    return dto;
+  } catch {
+    res.status(500).json({
+      success: false,
+      error: "Internal server error during validation",
+    });
+    return undefined;
+  }
 }

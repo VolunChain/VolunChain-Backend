@@ -4,29 +4,28 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql" // Specifies PostgreSQL as the database provider
-  url      = env("DATABASE_URL") // Loads the database connection URL from environment variables
-  directUrl = env("DIRECT_URL") // For direct connection to the database
+  provider     = "postgresql" // Specifies PostgreSQL as the database provider
+  url          = env("DATABASE_URL") // Loads the database connection URL from environment variables
+  directUrl    = env("DIRECT_URL") // For direct connection to the database
   relationMode = "prisma"
 }
 
 // User model represents a system user
 model User {
-  id                         String    @id @default(uuid()) // Unique identifier
-  createdAt                  DateTime  @default(now()) // Timestamp for record creation
-  updatedAt                  DateTime  @updatedAt // Timestamp for record update
-  name                       String
-  lastName                   String?
-  email                      String    @unique // Unique email constraint
-  password                   String
-  wallet                     String    @unique // Unique wallet identifier
-  isVerified                 Boolean   @default(false)
-  verificationToken          String?
-  verificationTokenExpires   DateTime?
-  nfts                       NFT[]     @relation("UserNFTs") // One-to-many relationship with NFTs
-  userVolunteers             UserVolunteer[] @relation("UserToVolunteer") // Relation to UserVolunteer
-  sentMessages               Message[] @relation("SentMessages")
-  receivedMessages           Message[] @relation("ReceivedMessages")
+  id                       String          @id @default(uuid()) // Unique identifier
+  createdAt                DateTime        @default(now()) // Timestamp for record creation
+  updatedAt                DateTime        @updatedAt // Timestamp for record update
+  name                     String
+  lastName                 String?
+  email                    String          @unique // Unique email constraint
+  wallet                   String          @unique // Unique wallet identifier
+  isVerified               Boolean         @default(true) // Auto-verified for wallet-based auth
+  verificationToken        String?
+  verificationTokenExpires DateTime?
+  nfts                     NFT[]           @relation("UserNFTs") // One-to-many relationship with NFTs
+  userVolunteers           UserVolunteer[] @relation("UserToVolunteer") // Relation to UserVolunteer
+  sentMessages             Message[]       @relation("SentMessages")
+  receivedMessages         Message[]       @relation("ReceivedMessages")
 }
 
 // Organization model represents an entity like a company or group
@@ -36,7 +35,6 @@ model Organization {
   updatedAt DateTime  @updatedAt
   name      String
   email     String    @unique
-  password  String
   category  String
   wallet    String    @unique
   nfts      NFT[]     @relation("OrganizationNFTs") // One-to-many relationship with NFTs
@@ -94,33 +92,33 @@ model TestItem {
 
 // UserVolunteer model represents the relationship between Users and Volunteers
 model UserVolunteer {
-  userId           String    // Foreign key for User
-  volunteerId      String    // Foreign key for Volunteer
+  userId           String // Foreign key for User
+  volunteerId      String // Foreign key for Volunteer
   joinedAt         DateTime  @default(now())
   hoursContributed Float     @default(0) // Track hours contributed by the volunteer
   user             User      @relation(fields: [userId], references: [id], name: "UserToVolunteer")
   volunteer        Volunteer @relation(fields: [volunteerId], references: [id], name: "VolunteerToUser")
 
   @@id([userId, volunteerId]) // Use composite ID from metrics branch
-  @@index([userId])           // Keep indexes from main
-  @@index([volunteerId])      // Keep indexes from main
+  @@index([userId]) // Keep indexes from main
+  @@index([volunteerId]) // Keep indexes from main
 }
 
 // Volunteer model represents a volunteer position within a project
 model Volunteer {
-  id              String          @id @default(uuid())
-  name            String
-  description     String
-  requirements    String
-  incentive       String?
-  maxVolunteers   Int             @default(10)
-  projectId       String
-  project         Project         @relation(fields: [projectId], references: [id])
-  userVolunteers  UserVolunteer[] @relation("VolunteerToUser")
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  certificate     Certificate?
-  messages        Message[]
+  id             String          @id @default(uuid())
+  name           String
+  description    String
+  requirements   String
+  incentive      String?
+  maxVolunteers  Int             @default(10)
+  projectId      String
+  project        Project         @relation(fields: [projectId], references: [id])
+  userVolunteers UserVolunteer[] @relation("VolunteerToUser")
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  certificate    Certificate?
+  messages       Message[]
 
   @@index([projectId])
 }
@@ -160,30 +158,30 @@ model Photo {
 }
 
 model Certificate {
-  id            String   @id @default(cuid())
-  volunteerId   String   @unique
-  volunteer     Volunteer @relation(fields: [volunteerId], references: [id])
-  s3Key         String    @default("https://onlydust-app-images.s3.eu-west-1.amazonaws.com/8ee3b7d84fe0672850e4c81890361b73.png")
-  uniqueId      String   @unique
+  id            String                   @id @default(cuid())
+  volunteerId   String                   @unique
+  volunteer     Volunteer                @relation(fields: [volunteerId], references: [id])
+  s3Key         String                   @default("https://onlydust-app-images.s3.eu-west-1.amazonaws.com/8ee3b7d84fe0672850e4c81890361b73.png")
+  uniqueId      String                   @unique
   customMessage String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime                 @updatedAt
   downloads     CertificateDownloadLog[]
 }
 
 model Message {
-  id           String    @id @default(uuid())
-  content      String
-  sentAt       DateTime  @default(now())
-  readAt       DateTime?
-  
-  senderId     String
-  receiverId   String
-  volunteerId  String
+  id      String    @id @default(uuid())
+  content String
+  sentAt  DateTime  @default(now())
+  readAt  DateTime?
 
-  sender       User      @relation("SentMessages", fields: [senderId], references: [id])
-  receiver     User      @relation("ReceivedMessages", fields: [receiverId], references: [id])
-  volunteer    Volunteer @relation(fields: [volunteerId], references: [id])
+  senderId    String
+  receiverId  String
+  volunteerId String
+
+  sender    User      @relation("SentMessages", fields: [senderId], references: [id])
+  receiver  User      @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  volunteer Volunteer @relation(fields: [volunteerId], references: [id])
 
   @@index([senderId])
   @@index([receiverId])
@@ -191,9 +189,9 @@ model Message {
 }
 
 model CertificateDownloadLog {
-  id            String   @id @default(cuid())
+  id            String      @id @default(cuid())
   certificateId String
   userId        String
-  timestamp     DateTime @default(now())
+  timestamp     DateTime    @default(now())
   certificate   Certificate @relation(fields: [certificateId], references: [id])
 }

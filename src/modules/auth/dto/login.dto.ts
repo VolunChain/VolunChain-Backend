@@ -1,10 +1,12 @@
-import { IsString, IsEmail, IsNotEmpty } from "class-validator";
+import { IsString, MinLength, MaxLength } from "class-validator";
 
 export class LoginDto {
-  @IsEmail({}, { message: "Please provide a valid email address" })
-  email: string;
-
-  @IsString({ message: "Password must be a string" })
-  @IsNotEmpty({ message: "Password is required" })
-  password: string;
+  @IsString({ message: "Wallet address must be a string" })
+  @MinLength(56, {
+    message: "Stellar wallet address must be 56 characters long",
+  })
+  @MaxLength(56, {
+    message: "Stellar wallet address must be 56 characters long",
+  })
+  walletAddress: string;
 }
