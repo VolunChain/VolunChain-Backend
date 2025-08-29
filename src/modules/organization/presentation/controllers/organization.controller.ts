@@ -1,17 +1,14 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../../../shared/infrastructure/utils/async-handler";
-import { CreateOrganizationUseCase } from "../../application/use-cases/create-organization.usecase";
-import { GetOrganizationByIdUseCase } from "../../application/use-cases/get-organization-by-id.usecase";
-import { UpdateOrganizationUseCase } from "../../application/use-cases/update-organization.usecase";
-import { DeleteOrganizationUseCase } from "../../application/use-cases/delete-organization.usecase";
-import { GetAllOrganizationsUseCase } from "../../application/use-cases/get-all-organizations.usecase";
-import { CreateOrganizationDto } from "../dto/create-organization.dto";
-import { UpdateOrganizationDto } from "../dto/update-organization.dto";
+import { CreateOrganizationUseCase } from "../../application/use-cases/create-organization.use-case";
+import { GetOrganizationByIdUseCase } from "../../application/use-cases/get-organization-by-id.use-case";
+import { UpdateOrganizationUseCase } from "../../application/use-cases/update-organization.use-case";
+import { DeleteOrganizationUseCase } from "../../application/use-cases/delete-organization.use-case";
+import { GetAllOrganizationsUseCase } from "../../application/use-cases/get-all-organizations.use-case";
+import { CreateOrganizationDto, UpdateOrganizationDto } from "../dto";
+
 import { OrganizationNotFoundException } from "../../domain/exceptions/organization-not-found.exception";
-import {
-  UuidParamsDto,
-  PaginationQueryDto,
-} from "../../../shared/dto/base.dto";
+import { PaginationQueryDto } from "@/shared/dto/base.dto";
 
 export class OrganizationController {
   constructor(
@@ -23,12 +20,11 @@ export class OrganizationController {
   ) {}
 
   createOrganization = asyncHandler(
-    async (
-      req: Request<object, object, CreateOrganizationDto>,
-      res: Response
-    ): Promise<void> => {
+    async (req: Request, res: Response): Promise<void> => {
+      const organizationInformation: CreateOrganizationDto = req.body;
+
       const organization = await this.createOrganizationUseCase.execute(
-        req.body
+        organizationInformation
       );
 
       res.status(201).json({
@@ -40,7 +36,7 @@ export class OrganizationController {
   );
 
   getOrganizationById = asyncHandler(
-    async (req: Request<UuidParamsDto>, res: Response): Promise<void> => {
+    async (req: Request, res: Response): Promise<void> => {
       const { id } = req.params;
 
       try {
@@ -64,16 +60,14 @@ export class OrganizationController {
   );
 
   updateOrganization = asyncHandler(
-    async (
-      req: Request<UuidParamsDto, object, UpdateOrganizationDto>,
-      res: Response
-    ): Promise<void> => {
+    async (req: Request, res: Response): Promise<void> => {
       const { id } = req.params;
+      const { ...organizationInformation }: UpdateOrganizationDto = req.body;
 
       try {
         const organization = await this.updateOrganizationUseCase.execute(
           id,
-          req.body
+          organizationInformation
         );
 
         res.status(200).json({
@@ -95,7 +89,7 @@ export class OrganizationController {
   );
 
   deleteOrganization = asyncHandler(
-    async (req: Request<UuidParamsDto>, res: Response): Promise<void> => {
+    async (req: Request, res: Response): Promise<void> => {
       const { id } = req.params;
 
       try {
@@ -116,11 +110,8 @@ export class OrganizationController {
   );
 
   getAllOrganizations = asyncHandler(
-    async (
-      req: Request<object, object, object, PaginationQueryDto>,
-      res: Response
-    ): Promise<void> => {
-      const { page, limit, search } = req.query;
+    async (req: Request, res: Response): Promise<void> => {
+      const { page, limit, search }: PaginationQueryDto = req.query;
 
       const organizations = await this.getAllOrganizationsUseCase.execute({
         page: page || 1,

@@ -4,6 +4,18 @@
 
 The Organization module manages all organization-related operations including creation, updates, verification, and settings management. This module handles the business logic for organizations that post volunteer opportunities on the VolunChain platform.
 
+## Patrón de Inyección de Dependencias
+
+El módulo utiliza un patrón de inyección de dependencias para desacoplar los componentes y facilitar las pruebas unitarias:
+
+1. **Repositorios**: Implementan interfaces definidas en el dominio y reciben dependencias externas (como PrismaClient) a través del constructor.
+
+2. **Casos de Uso**: Reciben el repositorio como dependencia a través del constructor, lo que permite intercambiar implementaciones fácilmente.
+
+3. **Controladores**: Reciben todos los casos de uso necesarios a través del constructor.
+
+4. **Módulo**: La clase `OrganizationModule` actúa como un contenedor de dependencias que inicializa y conecta todos los componentes.
+
 ## Architecture
 
 ### Domain Layer (`domain/`)
@@ -33,6 +45,18 @@ The Organization module manages all organization-related operations including cr
 - **DTOs**: Data Transfer Objects with validation
 
 ## Development
+
+### Using the Module
+
+Para utilizar este módulo en otras partes de la aplicación:
+
+```typescript
+// Inicializar el módulo (normalmente en la configuración de la aplicación)
+OrganizationModule.initialize();
+
+// Obtener el controlador con todas sus dependencias inyectadas
+const organizationController = OrganizationModule.getController();
+```
 
 ### Adding New Features
 

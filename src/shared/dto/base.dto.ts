@@ -1,9 +1,8 @@
 import { IsUUID, IsOptional, IsInt, Min, IsString } from "class-validator";
 import { Transform } from "class-transformer";
-
 export class UuidParamsDto {
   @IsUUID(4, { message: "ID must be a valid UUID" })
-  id: string;
+  id!: string;
 }
 
 export class PaginationQueryDto {
@@ -29,7 +28,7 @@ export class BaseResponseDto {
   message?: string;
 }
 
-export class ErrorResponseDto extends BaseResponseDto {
+export class ErrorResponseDto {
   success: false;
   error: string;
   details?: Array<{

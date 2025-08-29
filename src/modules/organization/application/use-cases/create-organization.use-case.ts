@@ -1,6 +1,6 @@
 import { CreateOrganizationDto } from "../../presentation/dto/create-organization.dto";
-import { Organization } from "../../domain/entities/organization.entity";
-import { IOrganizationRepository } from "../../domain/interfaces/organization-repository.interface";
+import { OrganizationEntity } from "../../domain/entities/organization.entity";
+import { IOrganizationRepository } from "../../application/repository/organization.repository";
 import { randomUUID } from "crypto";
 
 export class CreateOrganizationUseCase {
@@ -8,7 +8,7 @@ export class CreateOrganizationUseCase {
     private readonly organizationRepository: IOrganizationRepository
   ) {}
 
-  async execute(dto: CreateOrganizationDto): Promise<Organization> {
+  async execute(dto: CreateOrganizationDto): Promise<OrganizationEntity> {
     const organizationProps = {
       id: randomUUID(),
       name: dto.name,
@@ -21,7 +21,7 @@ export class CreateOrganizationUseCase {
       isVerified: false,
     };
 
-    const organization = Organization.create(organizationProps);
+    const organization = OrganizationEntity.create(organizationProps);
 
     return await this.organizationRepository.save(organization);
   }

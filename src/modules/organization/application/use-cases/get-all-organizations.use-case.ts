@@ -1,5 +1,5 @@
-import { Organization } from "../../domain/entities/organization.entity";
-import { IOrganizationRepository } from "../../domain/interfaces/organization-repository.interface";
+import { OrganizationEntity } from "../../domain/entities/organization.entity";
+import { IOrganizationRepository } from "../repository/organization.repository";
 
 interface GetAllOrganizationsOptions {
   page: number;
@@ -12,7 +12,9 @@ export class GetAllOrganizationsUseCase {
     private readonly organizationRepository: IOrganizationRepository
   ) {}
 
-  async execute(options: GetAllOrganizationsOptions): Promise<Organization[]> {
+  async execute(
+    options: GetAllOrganizationsOptions
+  ): Promise<OrganizationEntity[]> {
     return await this.organizationRepository.findAll({
       page: options.page,
       limit: options.limit,

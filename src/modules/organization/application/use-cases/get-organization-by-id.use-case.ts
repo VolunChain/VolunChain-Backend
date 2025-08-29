@@ -1,18 +1,19 @@
-import { IOrganizationRepository } from "../../domain/interfaces/organization-repository.interface";
+import { OrganizationEntity } from "../../domain/entities/organization.entity";
+import { IOrganizationRepository } from "../repository/organization.repository";
 import { OrganizationNotFoundException } from "../../domain/exceptions/organization-not-found.exception";
 
-export class DeleteOrganizationUseCase {
+export class GetOrganizationByIdUseCase {
   constructor(
     private readonly organizationRepository: IOrganizationRepository
   ) {}
 
-  async execute(id: string): Promise<void> {
+  async execute(id: string): Promise<OrganizationEntity> {
     const organization = await this.organizationRepository.findById(id);
 
     if (!organization) {
       throw new OrganizationNotFoundException(id);
     }
 
-    await this.organizationRepository.delete(id);
+    return organization;
   }
 }

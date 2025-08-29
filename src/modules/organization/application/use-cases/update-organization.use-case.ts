@@ -1,6 +1,6 @@
 import { UpdateOrganizationDto } from "../../presentation/dto/update-organization.dto";
-import { Organization } from "../../domain/entities/organization.entity";
-import { IOrganizationRepository } from "../../domain/interfaces/organization-repository.interface";
+import { OrganizationEntity } from "../../domain/entities/organization.entity";
+import { IOrganizationRepository } from "../repository/organization.repository";
 import { OrganizationNotFoundException } from "../../domain/exceptions/organization-not-found.exception";
 
 export class UpdateOrganizationUseCase {
@@ -8,7 +8,10 @@ export class UpdateOrganizationUseCase {
     private readonly organizationRepository: IOrganizationRepository
   ) {}
 
-  async execute(id: string, dto: UpdateOrganizationDto): Promise<Organization> {
+  async execute(
+    id: string,
+    dto: UpdateOrganizationDto
+  ): Promise<OrganizationEntity> {
     const existingOrganization = await this.organizationRepository.findById(id);
 
     if (!existingOrganization) {

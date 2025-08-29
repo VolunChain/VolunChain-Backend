@@ -1,7 +1,7 @@
 import { BaseEntity } from "../../../shared/domain/entities/base.entity";
+import { DomainException } from "@/modules/shared/domain/exceptions/domain.exception";
 
 export interface OrganizationProps {
-  id: string;
   name: string;
   email: string;
   description: string;
@@ -14,7 +14,13 @@ export interface OrganizationProps {
   walletAddress?: string;
 }
 
-export class Organization extends BaseEntity {
+export class InvalidOrganizationDataException extends DomainException {
+  constructor(field: string, value: string) {
+    super(`Invalid ${field}: ${value}`);
+  }
+}
+
+export class OrganizationEntity extends BaseEntity {
   public readonly name: string;
   public readonly email: string;
   public readonly description: string;
@@ -32,7 +38,48 @@ export class Organization extends BaseEntity {
     createdAt?: Date,
     updatedAt?: Date
   ) {
-    super();
+    super(); // Llamar super() aunque BaseEntity no tenga constructor
+
+    // Asignar propiedades de BaseEntity si se proporcionan
+    if (id) this.id = id;
+    if (createdAt) this.createdAt = createdAt;
+    if (updatedAt) this.updatedAt = updatedAt;
+
+    // Validaciones de dominio usando DomainExceptions
+    if (!props.name?.trim()) {
+      throw new InvalidOrganizationDataException("name", "cannot be empty");
+    }
+
+    if (!props.email?.trim()) {
+      throw new InvalidOrganizationDataException("email", "cannot be empty");
+    }
+
+    if (!this.isValidEmail(props.email)) {
+      throw new InvalidOrganizationDataException("email", "invalid format");
+    }
+
+    if (!props.description?.trim()) {
+      throw new InvalidOrganizationDataException(
+        "description",
+        "cannot be empty"
+      );
+    }
+
+    if (props.name.length < 2) {
+      throw new InvalidOrganizationDataException(
+        "name",
+        "must be at least 2 characters"
+      );
+    }
+
+    if (props.description.length < 10) {
+      throw new InvalidOrganizationDataException(
+        "description",
+        "must be at least 10 characters"
+      );
+    }
+
+    // Asignar propiedades después de validar
     this.name = props.name;
     this.email = props.email;
     this.description = props.description;
@@ -45,14 +92,16 @@ export class Organization extends BaseEntity {
     this.walletAddress = props.walletAddress;
   }
 
-  public static create(props: OrganizationProps, id?: string): Organization {
-    return new Organization(props, id);
+  public static create(
+    props: OrganizationProps,
+    id?: string
+  ): OrganizationEntity {
+    return new OrganizationEntity(props, id);
   }
 
-  public update(props: Partial<OrganizationProps>): Organization {
-    return new Organization(
+  public update(props: Partial<OrganizationProps>): OrganizationEntity {
+    return new OrganizationEntity(
       {
-        id: this.id,
         name: props.name ?? this.name,
         email: props.email ?? this.email,
         description: props.description ?? this.description,
@@ -68,5 +117,56 @@ export class Organization extends BaseEntity {
       this.createdAt,
       new Date()
     );
+  }
+
+  // Método privado para validar formato de email
+  private isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  // Métodos de negocio
+  public verify(): OrganizationEntity {
+    return this.update({ isVerified: true });
+  }
+
+  public changeCategory(category: string): OrganizationEntity {
+    if (!category?.trim()) {
+      throw new InvalidOrganizationDataException("category", "cannot be empty");
+    }
+    return this.update({ category });
+  }
+
+  public updateLogo(logoUrl: string): OrganizationEntity {
+    if (!logoUrl?.trim()) {
+      throw new InvalidOrganizationDataException("logoUrl", "cannot be empty");
+    }
+    if (!this.isValidUrl(logoUrl)) {
+      throw new InvalidOrganizationDataException(
+        "logoUrl",
+        "invalid URL format"
+      );
+    }
+    return this.update({ logoUrl });
+  }
+
+  public updateWebsite(website: string): OrganizationEntity {
+    if (website && !this.isValidUrl(website)) {
+      throw new InvalidOrganizationDataException(
+        "website",
+        "invalid URL format"
+      );
+    }
+    return this.update({ website });
+  }
+
+  // Método privado para validar URLs
+  private isValidUrl(url: string): boolean {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
   }
 }
