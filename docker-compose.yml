@@ -1,37 +1,41 @@
 services:
   db:
     image: postgres:15
-    container_name: volunchain_db
+    container_name: ${DB_CONTAINER_NAME:-volunchain_db}
     environment:
-      POSTGRES_USER: volunchain
-      POSTGRES_PASSWORD: volunchain123
-      POSTGRES_DB: volunchain
+      POSTGRES_USER: ${POSTGRES_USER:-volunchain}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-volunchain123}
+      POSTGRES_DB: ${POSTGRES_DB:-volunchain}
     ports:
-      - "5434:5432" # O usa "5432:5432" si necesitas que coincida localmente
+      - "${DB_HOST_PORT:-5434}:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U volunchain"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-volunchain}"]
       interval: 5s
       retries: 5
       timeout: 5s
+
   redis:
     image: redis:latest
-    container_name: volunchain_redis
+    container_name: ${REDIS_CONTAINER_NAME:-volunchain_redis}
     ports:
-      - "6379:6379"
+      - "${REDIS_HOST_PORT:-6379}:6379"
 
   app:
     build: .
-    container_name: volunchain_app
+    container_name: ${APP_CONTAINER_NAME:-volunchain_app}
     environment:
-      DATABASE_URL: postgres://volunchain:volunchain123@db:5432/volunchain
-      REDIS_URL: redis://redis:6379 
+      DATABASE_URL: postgres://${POSTGRES_USER:-volunchain}:${POSTGRES_PASSWORD:-volunchain123}@db:5432/${POSTGRES_DB:-volunchain}
+      REDIS_URL: redis://redis:6379
     command: sh -c "./entrypoint.sh"
     depends_on:
       db:
         condition: service_healthy
       redis:  
         condition: service_started
+
 volumes:
   db_data:
+docker-compose.yml
+git switch -c feature/docker-variables
