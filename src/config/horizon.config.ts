@@ -1,10 +1,11 @@
 import dotenv from "dotenv";
+import { env } from "./env";
 
 dotenv.config();
 
 export const horizonConfig = {
-  url: process.env.HORIZON_URL || "https://horizon-testnet.stellar.org",
-  network: process.env.STELLAR_NETWORK || "testnet",
+  url: env.HORIZON_URL || "https://horizon-testnet.stellar.org",
+  network: env.STELLAR_NETWORK || "testnet",
   timeout: 30000, // 30 seconds timeout for API calls
 };
 

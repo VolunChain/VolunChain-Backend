@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { DatabaseMonitor } from "../utils/db-monitor";
+import { env } from "./env";
 
 // Configure Prisma Client with connection pooling
 const prismaClientSingleton = () => {
@@ -7,7 +8,7 @@ const prismaClientSingleton = () => {
     log: ["query", "info", "warn", "error"],
     datasources: {
       db: {
-        url: process.env.DATABASE_URL,
+        url: env.DATABASE_URL,
       },
     },
   });
@@ -23,7 +24,7 @@ const prisma = globalThis.prisma ?? prismaClientSingleton();
 // Initialize database monitor
 export const dbMonitor = new DatabaseMonitor(prisma);
 
-if (process.env.NODE_ENV !== "production") {
+if (env.NODE_ENV !== "production") {
   globalThis.prisma = prisma;
 }
 

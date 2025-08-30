@@ -1,10 +1,11 @@
 import dotenv from "dotenv";
+import { env } from "./env";
 
 dotenv.config();
 
 export const sorobanConfig = {
-  rpcUrl: process.env.SOROBAN_RPC_URL || "https://soroban-testnet.stellar.org",
-  serverSecret: process.env.SOROBAN_SERVER_SECRET,
+  rpcUrl: env.SOROBAN_RPC_URL || "https://soroban-testnet.stellar.org",
+  serverSecret: env.SOROBAN_SERVER_SECRET,
 };
 
 // Validate required environment variables

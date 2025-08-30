@@ -1,3 +1,4 @@
+
 # VolunChain
 
 **Innovating Volunteering with Blockchain ��**
@@ -576,3 +577,21 @@ Run wallet verification tests:
 ```bash
 npm test -- --testPathPattern=wallet
 ```
+
+## ⚠️ Environment Validation & Startup Errors
+
+VolunChain validates all required environment variables at startup. If any required variable is missing or invalid, the application will fail to start and display a clear error message indicating which variable is missing.
+
+**Common startup failure messages:**
+- `DATABASE_URL environment variable is required`
+- `JWT_SECRET environment variable is required`
+- `SUPABASE_URL environment variable is required`
+- `SUPABASE_ANON_KEY environment variable is required`
+- `EMAIL_USER environment variable is required`
+- `EMAIL_PASSWORD environment variable is required`
+- `SOROBAN_SERVER_SECRET environment variable is required`
+
+**How to fix:**  
+Check your `.env` file and ensure all required variables are set. See `.env.example` for a complete list of required variables and example values.
+
+If you see a startup error, update your `.env` file and restart the application.
