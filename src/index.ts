@@ -186,13 +186,10 @@ prisma
         globalLogger.info("Cron jobs initialized successfully!");
 
         app.listen(PORT, () => {
-          globalLogger.info(
-            `Server is running on http://localhost:${PORT}`,
-            {
-              port: PORT,
-              environment: ENV,
-            }
-          );
+          globalLogger.info(`Server is running on http://localhost:${PORT}`, {
+            port: PORT,
+            environment: ENV,
+          });
 
           if (ENV === "development") {
             globalLogger.info(

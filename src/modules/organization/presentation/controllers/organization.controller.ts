@@ -8,10 +8,7 @@ import { GetAllOrganizationsUseCase } from "../../application/use-cases/get-all-
 import { CreateOrganizationDto } from "../dto/create-organization.dto";
 import { UpdateOrganizationDto } from "../dto/update-organization.dto";
 import { OrganizationNotFoundException } from "../../domain/exceptions/organization-not-found.exception";
-import {
-  UuidParamsDto,
-  PaginationQueryDto,
-} from "../../../shared/dto/base.dto";
+import { PaginationQueryDto, UuidParamsDto } from "@/shared/dto/base.dto";
 
 export class OrganizationController {
   constructor(
@@ -40,7 +37,7 @@ export class OrganizationController {
   );
 
   getOrganizationById = asyncHandler(
-    async (req: Request<UuidParamsDto>, res: Response): Promise<void> => {
+    async (req: Request, res: Response): Promise<void> => {
       const { id } = req.params;
 
       try {

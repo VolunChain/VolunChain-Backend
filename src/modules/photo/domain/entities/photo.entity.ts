@@ -1,44 +1,36 @@
-import { Entity, Column } from "typeorm";
 import { BaseEntity } from "../../../shared/domain/entities/base.entity";
+import { IPhotoMetadata, IPhotoProps } from "./interfaces/photo.interface";
+import {
+  InvalidPhotoUrlException,
+  MissingUserIdException,
+} from "../exceptions/domain.exception";
 
-export interface PhotoProps {
-  id?: string;
-  url: string;
-  userId: string;
-  uploadedAt?: Date;
-  metadata?: Record<string, any>;
-}
-
-@Entity("photos")
-export class Photo extends BaseEntity {
-  @Column({ type: "varchar", length: 500, nullable: false })
+export class PhotoEntity extends BaseEntity {
   url: string;
 
-  @Column({ type: "uuid", nullable: false })
   userId: string;
 
-  @Column({ type: "jsonb", nullable: true })
-  metadata?: Record<string, any>;
+  metadata?: IPhotoMetadata;
 
   // Domain logic and validation
-  public validate(): boolean {
+  protected validate(): boolean {
     if (!this.url || this.url.trim() === "") {
-      throw new Error("Photo URL is required");
+      throw new InvalidPhotoUrlException(this.url);
     }
 
     if (!/^https?:\/\/.+$/.test(this.url)) {
-      throw new Error("Photo URL must be a valid HTTP/HTTPS URL");
+      throw new InvalidPhotoUrlException(this.url);
     }
 
     if (!this.userId || this.userId.trim() === "") {
-      throw new Error("User ID is required");
+      throw new MissingUserIdException();
     }
 
     return true;
   }
 
   // Update metadata
-  public updateMetadata(newMetadata: Record<string, any>): void {
+  public updateMetadata(newMetadata: IPhotoMetadata): void {
     this.metadata = {
       ...this.metadata,
       ...newMetadata,
@@ -46,8 +38,8 @@ export class Photo extends BaseEntity {
   }
 
   // Static factory method
-  public static create(props: PhotoProps): Photo {
-    const photo = new Photo();
+  public static create(props: IPhotoProps): PhotoEntity {
+    const photo = new PhotoEntity();
     photo.url = props.url;
     photo.userId = props.userId;
     photo.metadata = props.metadata ?? {};
@@ -56,7 +48,7 @@ export class Photo extends BaseEntity {
   }
 
   // Convert to plain object for persistence
-  public toObject(): PhotoProps {
+  public toObject(): IPhotoProps {
     return {
       id: this.id,
       url: this.url,

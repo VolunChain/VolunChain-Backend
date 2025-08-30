@@ -22,7 +22,6 @@
     "s3:setup": "ts-node src/utils/setup-s3-bucket.ts"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.798.0",
     "@aws-sdk/s3-request-presigner": "^3.798.0",
     "@prisma/client": "^6.4.1",
     "@stellar/stellar-sdk": "^13.3.0",
@@ -32,7 +31,6 @@
     "@types/swagger-ui-express": "^4.1.7",
     "@types/uuid": "^10.0.0",
     "axios": "^1.7.9",
-    "backblaze-b2": "^1.7.0",
     "bcryptjs": "^3.0.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
@@ -43,7 +41,6 @@
     "express-rate-limit": "^7.5.0",
     "express-validator": "^7.2.0",
     "jsonwebtoken": "^9.0.2",
-    "multer": "^1.4.5-lts.2",
     "node-cron": "^3.0.3",
     "nodemailer": "^6.10.0",
     "pdf-lib": "^1.17.1",
