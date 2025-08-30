@@ -1,5 +1,6 @@
 import winston from "winston";
 import path from "path";
+import { env } from "./env";
 
 const { combine, timestamp, errors, json, printf } = winston.format;
 
@@ -17,8 +18,8 @@ const consoleFormat = printf(
 const logsDir = path.join(process.cwd(), "logs");
 
 const createLogger = () => {
-  const isProduction = process.env.NODE_ENV === "production";
-  const isDevelopment = process.env.NODE_ENV === "development";
+  const isProduction = env.NODE_ENV === "production";
+  const isDevelopment = env.NODE_ENV === "development";
 
   const transports: winston.transport[] = [];
 

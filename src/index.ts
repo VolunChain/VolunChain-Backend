@@ -23,13 +23,14 @@ import organizationRoutes from "./routes/OrganizationRoutes";
 import messageRoutes from "./modules/messaging/routes/messaging.routes";
 import testRoutes from "./routes/testRoutes";
 import { Logger } from "./utils/logger";
+import { env } from "../src/config/env";
 
 const globalLogger = new Logger("VolunChain");
 import fs from "fs";
 import path from "path";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = env.PORT;
 const ENV = process.env.NODE_ENV || "development";
 
 // Ensure logs directory exists
