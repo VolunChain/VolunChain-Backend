@@ -1,100 +1,70 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { PrismaUserRepository } from "../modules/user/repositories/PrismaUserRepository";
-import {
-  AuthenticatedRequest,
-  DecodedUser,
-  toAuthenticatedUser,
-} from "../types/auth.types";
+import { AuthenticatedRequest, DecodedUser } from "../types/auth.types";
 
-const SECRET_KEY = process.env.JWT_SECRET || "defaultSecret";
-const userRepository = new PrismaUserRepository();
-
-export const authMiddleware = async (
-  req: Request,
+export const authMiddleware = (
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
-): Promise<void> => {
-  const token = req.headers.authorization?.split(" ")[1];
-
-  if (!token) {
-    res.status(401).json({ message: "No token provided" });
-    return;
-  }
-
+): void => {
   try {
-    const decoded = jwt.verify(token, SECRET_KEY) as {
-      id: string;
-      role: string;
-    };
-    const user = await userRepository.findById(`${decoded.id}`);
+    const token = req.headers.authorization?.replace("Bearer ", "");
 
-    if (!user) {
-      res.status(401).json({ message: "User not found" });
-      return;
-    }
-
-    if (!user.isVerified) {
-      res.status(403).json({
-        message: "Email not verified. Please verify your email to proceed.",
+    if (!token) {
+      res.status(401).json({
+        success: false,
+        message: "Access token required",
       });
       return;
     }
 
-    (req as AuthenticatedRequest).user = {
-      id: user.id,
-      email: user.email,
-      role: decoded.role,
-      isVerified: user.isVerified,
-    };
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET || "your-secret-key"
+    ) as DecodedUser;
 
+    req.user = decoded;
     next();
-  } catch (error) {
-    console.error("Error during authentication:", error);
-    res.status(401).json({ message: "Invalid token" });
-  }
-};
-
-export const requireVerifiedEmail = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const authenticatedReq = req as AuthenticatedRequest;
-
-    if (!authenticatedReq.user) {
-      res
-        .status(401)
-        .json({ message: "Unauthorized - Authentication required" });
-      return;
-    }
-
-    const isVerified = await userRepository.isUserVerified(
-      authenticatedReq.user.id.toString()
-    );
-
-    if (!isVerified) {
-      res.status(403).json({
-        message: "Forbidden - Email verification required",
-        verificationNeeded: true,
-      });
-      return;
-    }
-
-    authenticatedReq.user.isVerified = true;
-    next();
-  } catch (error) {
-    // Use basic console.error here to avoid circular dependencies
-    console.error("Error checking email verification status:", error);
-    res.status(500).json({
-      message: "Internal server error",
-      ...(req.traceId && { traceId: req.traceId }),
+  } catch {
+    res.status(401).json({
+      success: false,
+      message: "Invalid or expired token",
     });
   }
 };
 
+export const requireUserProfile = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): void => {
+  if (req.user?.profileType !== "user") {
+    res.status(403).json({
+      success: false,
+      message: "User profile required for this action",
+    });
+    return;
+  }
+  next();
+};
+
+export const requireOrganizationProfile = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): void => {
+  if (req.user?.profileType !== "organization") {
+    res.status(403).json({
+      success: false,
+      message: "Organization profile required for this action",
+    });
+    return;
+  }
+  next();
+};
+
 export default {
-  requireVerifiedEmail,
   authMiddleware,
+  requireUserProfile,
+  requireOrganizationProfile,
 };

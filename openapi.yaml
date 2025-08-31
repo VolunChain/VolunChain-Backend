@@ -4,18 +4,33 @@ info:
   description: |
     API for managing projects in VolunChain with versioning support.
 
-    ## API Versioning
-    This API uses URL path versioning with the following structure:
-    - `/api/v1/` - Current stable API version
-    - `/api/v2/` - Reserved for future expansion
+    ## Authentication
+    VolunChain uses wallet-based authentication with Stellar addresses.
+    - No passwords required
+    - JWT tokens for session management
+    - Support for user and organization profiles
 
-    All endpoints are namespaced under their respective version paths.
+    ## API Structure
+    This API uses a simple structure without versioning:
+    - `/api/` - Main API endpoints
+    - `/api/docs` - API documentation
+    
+    All endpoints are organized by functionality.
   version: 1.0.0
+  contact:
+    name: VolunChain Support
+    email: support@volunchain.org
 servers:
-  - url: http://localhost:3000/api/v1
-    description: Local development server (v1)
   - url: http://localhost:3000/api
-    description: API root (version info)
+    description: Local development server
+  - url: https://api.volunchain.org
+    description: Production server
+
+tags:
+  - name: Authentication
+    description: Wallet-based authentication endpoints
+  - name: API Info
+    description: API version and health information
 
 paths:
   # API Root endpoint (available at /api/)
@@ -69,61 +84,484 @@ paths:
                     type: string
                     example: "/api/docs"
 
-  # V1 API Endpoints (all under /api/v1/)
-  /auth/login:
-    post:
-      summary: "User login"
-      operationId: "login"
-      requestBody:
-        description: "User wallet address"
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - walletAddress
-              properties:
-                walletAddress:
-                  type: string
-                  description: "User's wallet address"
+  # Health check endpoint
+  /health:
+    get:
+      summary: "Health check"
+      description: "Check if the API is running and healthy"
+      operationId: "healthCheck"
       responses:
         '200':
-          description: "Authentication successful"
+          description: "API is healthy"
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  token:
+                  status:
                     type: string
-                    description: "JWT authentication token"
-        '401':
-          description: "Unauthorized"
+                    example: "API is running"
+                  version:
+                    type: string
+                    example: "1.0.0"
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: "2024-01-01T00:00:00.000Z"
+
+  # Authentication Endpoints
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: "Register new user or organization"
+      description: |
+        Register a new profile in the system. Can be a user or organization.
+        
+        **Important notes:**
+        - Wallet address must be a valid Stellar address (56 characters)
+        - Each wallet address can only be registered once
+        - Registrations are automatically verified
+        - For organizations, category field is required
+      operationId: "register"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            examples:
+              user_registration:
+                summary: User registration
+                value:
+                  name: "Juan Pérez"
+                  email: "juan.perez@email.com"
+                  walletAddress: "GXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+                  profileType: "user"
+                  lastName: "Pérez"
+              organization_registration:
+                summary: Organization registration
+                value:
+                  name: "Fundación Ambiental Verde"
+                  email: "contacto@fundacionverde.org"
+                  walletAddress: "GXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+                  profileType: "project"
+                  category: "environmental"
+      responses:
+        '201':
+          description: "Registration successful"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/RegisterResponse'
+        '400':
+          description: "Validation error or missing required fields"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: "Wallet address or email already registered"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: "Internal server error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
-  /auth/protected:
-    get:
-      summary: "Access a protected route"
-      operationId: "protectedRoute"
-      security:
-        - bearerAuth: []
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: "Login with wallet"
+      description: |
+        Authenticate a user or organization using their wallet address.
+        
+        **Important notes:**
+        - Only requires wallet address
+        - Returns JWT token valid for 24 hours
+        - Includes profile information in response
+      operationId: "login"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              walletAddress: "GXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
       responses:
         '200':
-          description: "Protected resource accessed successfully"
-          content:
-            text/plain:
-              schema:
-                type: string
-        '401':
-          description: "Unauthorized"
+          description: "Login successful"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: "Wallet address not found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: "Internal server error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
+  /auth/validate-wallet/{walletAddress}:
+    get:
+      tags:
+        - Authentication
+      summary: "Validate wallet address format"
+      description: |
+        Validate if a Stellar wallet address has the correct format.
+        
+        **Validation rules:**
+        - Must be exactly 56 characters long
+        - Must start with 'G'
+        - Must contain only valid Stellar characters (A-Z, 2-7)
+      operationId: "validateWalletFormat"
+      parameters:
+        - in: path
+          name: walletAddress
+          required: true
+          schema:
+            type: string
+            minLength: 56
+            maxLength: 56
+          description: "Stellar wallet address to validate"
+          example: "GXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+      responses:
+        '200':
+          description: "Wallet validation result"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WalletValidationResponse'
+        '400':
+          description: "Missing wallet address"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: "Internal server error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/check-wallet/{walletAddress}:
+    get:
+      tags:
+        - Authentication
+      summary: "Check wallet availability"
+      description: |
+        Check if a wallet address is available for registration.
+        
+        **Returns:**
+        - `true` if wallet is available
+        - `false` if wallet is already registered
+      operationId: "checkWalletAvailability"
+      parameters:
+        - in: path
+          name: walletAddress
+          required: true
+          schema:
+            type: string
+            minLength: 56
+            maxLength: 56
+          description: "Stellar wallet address to check"
+          example: "GXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+      responses:
+        '200':
+          description: "Wallet availability check result"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WalletAvailabilityResponse'
+        '400':
+          description: "Missing wallet address or validation error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: "Internal server error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/check-email/{email}:
+    get:
+      tags:
+        - Authentication
+      summary: "Check email availability"
+      description: |
+        Check if an email address is available for registration.
+        
+        **Returns:**
+        - `true` if email is available
+        - `false` if email is already registered
+      operationId: "checkEmailAvailability"
+      parameters:
+        - in: path
+          name: email
+          required: true
+          schema:
+            type: string
+            format: email
+          description: "Email address to check"
+          example: "juan.perez@email.com"
+      responses:
+        '200':
+          description: "Email availability check result"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailAvailabilityResponse'
+        '400':
+          description: "Missing email or validation error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: "Internal server error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/profile:
+    get:
+      tags:
+        - Authentication
+      summary: "Get authenticated user profile"
+      description: |
+        Get the profile information of the authenticated user.
+        
+        **Requirements:**
+        - Valid JWT token in Authorization header
+        - Accessible for both user and organization profiles
+      operationId: "getProfile"
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: "Profile information retrieved successfully"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '401':
+          description: "Invalid or expired token"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: "Internal server error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/validate-token:
+    post:
+      tags:
+        - Authentication
+      summary: "Validate JWT token"
+      description: |
+        Validate if a JWT token is still valid and return user information.
+        
+        **Requirements:**
+        - Valid JWT token in Authorization header
+      operationId: "validateToken"
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: "Token is valid"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenValidationResponse'
+        '401':
+          description: "Invalid or expired token"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: "Internal server error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/refresh-token:
+    post:
+      tags:
+        - Authentication
+      summary: "Refresh JWT token"
+      description: |
+        Refresh an existing JWT token to extend its validity.
+        
+        **Requirements:**
+        - Valid JWT token in Authorization header
+      operationId: "refreshToken"
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: "Token refreshed successfully"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefreshResponse'
+        '401':
+          description: "Invalid or expired token"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: "Internal server error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: "Logout user"
+      description: |
+        Logout a user by invalidating their JWT token.
+        
+        **Requirements:**
+        - Valid JWT token in Authorization header
+      operationId: "logout"
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: "Logout successful"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogoutResponse'
+        '400':
+          description: "Invalid logout request"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: "Invalid or expired token"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: "Internal server error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/user-only:
+    get:
+      tags:
+        - Authentication
+      summary: "User-only route"
+      description: |
+        Endpoint that can only be accessed by user profiles.
+        
+        **Requirements:**
+        - Valid JWT token
+        - User profile type
+      operationId: "userOnly"
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: "Access allowed for users"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "User-only route accessed successfully"
+        '401':
+          description: "Invalid token"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: "Access denied - requires user profile"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/organization-only:
+    get:
+      tags:
+        - Authentication
+      summary: "Organization-only route"
+      description: |
+        Endpoint that can only be accessed by organization profiles.
+        
+        **Requirements:**
+        - Valid JWT token
+        - Organization profile type
+      operationId: "organizationOnly"
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: "Access allowed for organizations"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Organization-only route accessed successfully"
+        '401':
+          description: "Invalid token"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: "Access denied - requires organization profile"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # Project and Organization Endpoints (existing)
   /organizations/{organizationId}/projects:
     get:
       summary: "Get all projects by organization ID"
@@ -149,7 +587,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ErrorResponse'
 
   /projects:
     post:
@@ -173,7 +611,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ErrorResponse'
 
   /projects/{id}:
     get:
@@ -198,7 +636,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ErrorResponse'
 
   /volunteers/{volunteerId}/users:
     get:
@@ -225,10 +663,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ErrorResponse'
 
 components:
   schemas:
+    # Project Schemas (existing)
     CreateProject:
       type: object
       required:
@@ -253,12 +692,6 @@ components:
         startDate:
           type: string
           format: date
-
-    Error:
-      type: object
-      properties:
-        error:
-          type: string
 
     Project:
       type: object
@@ -301,3 +734,265 @@ components:
           type: string
         name:
           type: string
+
+    # Authentication Schemas
+    RegisterRequest:
+      type: object
+      required:
+        - name
+        - email
+        - walletAddress
+        - profileType
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+          description: "Name of the user or organization"
+          example: "Juan Pérez"
+        email:
+          type: string
+          format: email
+          description: "Unique email address"
+          example: "juan.perez@email.com"
+        walletAddress:
+          type: string
+          minLength: 56
+          maxLength: 56
+          description: "Stellar wallet address (56 characters)"
+          example: "GXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+        profileType:
+          type: string
+          enum: [user, project]
+          description: "Type of profile to create"
+          example: "user"
+        lastName:
+          type: string
+          maxLength: 100
+          description: "Last name (only for user profiles)"
+          example: "Pérez"
+        category:
+          type: string
+          maxLength: 100
+          description: "Organization category (required for project profiles)"
+          example: "environmental"
+
+    RegisterResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "User registered successfully"
+        userId:
+          type: string
+          format: uuid
+          description: "User ID (only for user profiles)"
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        organizationId:
+          type: string
+          format: uuid
+          description: "Organization ID (only for project profiles)"
+          example: "123e4567-e89b-12d3-a456-426614174001"
+
+    LoginRequest:
+      type: object
+      required:
+        - walletAddress
+      properties:
+        walletAddress:
+          type: string
+          minLength: 56
+          maxLength: 56
+          description: "Stellar wallet address for authentication"
+          example: "GXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Login successful"
+        token:
+          type: string
+          description: "JWT token for authentication"
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        user:
+          $ref: '#/components/schemas/UserProfile'
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: "Unique user/organization ID"
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        name:
+          type: string
+          description: "User/organization name"
+          example: "Juan Pérez"
+        email:
+          type: string
+          format: email
+          description: "User/organization email"
+          example: "juan.perez@email.com"
+        wallet:
+          type: string
+          description: "Stellar wallet address"
+          example: "GXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+        profileType:
+          type: string
+          enum: [user, organization]
+          description: "Profile type"
+          example: "user"
+
+    ProfileResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Profile accessed successfully"
+        user:
+          $ref: '#/components/schemas/UserProfile'
+
+    # Wallet Validation Schemas
+    WalletValidationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        isValid:
+          type: boolean
+          description: "Whether the wallet address format is valid"
+          example: true
+        errors:
+          type: array
+          items:
+            type: string
+          description: "List of validation errors (empty if valid)"
+          example: []
+
+    WalletAvailabilityResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        available:
+          type: boolean
+          description: "Whether the wallet address is available for registration"
+          example: true
+        message:
+          type: string
+          description: "Human-readable message about availability"
+          example: "Wallet address is available"
+
+    EmailAvailabilityResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        available:
+          type: boolean
+          description: "Whether the email address is available for registration"
+          example: true
+        message:
+          type: string
+          description: "Human-readable message about availability"
+          example: "Email is available"
+
+    # Token Management Schemas
+    TokenValidationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Token is valid"
+        user:
+          $ref: '#/components/schemas/UserProfile'
+
+    TokenRefreshResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Token refreshed successfully"
+        token:
+          type: string
+          description: "New JWT token"
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        user:
+          $ref: '#/components/schemas/UserProfile'
+
+    LogoutResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Logout successful"
+
+    # Error Response Schema
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          description: "Error description"
+          example: "Wallet address not found"
+        code:
+          type: string
+          description: "Error code for programmatic handling"
+          example: "WALLET_NOT_FOUND"
+        details:
+          type: object
+          description: "Additional error details"
+          example: {}
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                description: "Field that caused the error"
+                example: "walletAddress"
+              message:
+                type: string
+                description: "Specific error message"
+                example: "Wallet address must be 56 characters long"
+          description: "List of validation errors (only for 400 errors)"
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT token obtained from login.
+        
+        **Format:** `Bearer <token>`
+        
+        **Example:** `Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`

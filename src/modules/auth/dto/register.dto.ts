@@ -3,8 +3,14 @@ import {
   IsEmail,
   MinLength,
   MaxLength,
+  IsEnum,
   IsOptional,
 } from "class-validator";
+
+export enum ProfileType {
+  USER = "user",
+  PROJECT = "project",
+}
 
 export class RegisterDto {
   @IsString({ message: "Name must be a string" })
@@ -15,12 +21,6 @@ export class RegisterDto {
   @IsEmail({}, { message: "Please provide a valid email address" })
   email: string;
 
-  @IsString({ message: "Password must be a string" })
-  @MinLength(8, { message: "Password must be at least 8 characters long" })
-  @MaxLength(128, { message: "Password cannot exceed 128 characters" })
-  password: string;
-
-  @IsOptional()
   @IsString({ message: "Wallet address must be a string" })
   @MinLength(56, {
     message: "Stellar wallet address must be 56 characters long",
@@ -28,5 +28,20 @@ export class RegisterDto {
   @MaxLength(56, {
     message: "Stellar wallet address must be 56 characters long",
   })
-  walletAddress?: string;
+  walletAddress: string;
+
+  @IsEnum(ProfileType, {
+    message: "Profile type must be either 'user' or 'project'",
+  })
+  profileType: ProfileType;
+
+  @IsOptional()
+  @IsString({ message: "Last name must be a string" })
+  @MaxLength(100, { message: "Last name cannot exceed 100 characters" })
+  lastName?: string;
+
+  @IsOptional()
+  @IsString({ message: "Category must be a string" })
+  @MaxLength(100, { message: "Category cannot exceed 100 characters" })
+  category?: string;
 }
