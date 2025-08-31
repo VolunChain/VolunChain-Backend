@@ -1,38 +1,64 @@
 import { Router } from "express";
 import AuthController from "../modules/auth/presentation/controllers/Auth.controller";
-// import authMiddleware from "../middleware/authMiddleware"; // Temporarily disabled
+import authMiddleware from "../middleware/authMiddleware";
+import { AuthenticatedRequest } from "../types/auth.types";
 
 const router = Router();
 
-// Health check for auth module
-router.get("/health", (req, res) => {
-  res.json({ status: "Auth module is available", module: "auth" });
-});
-
-// Public routes (now using functional controller)
+// Public routes
 router.post("/register", AuthController.register);
 router.post("/login", AuthController.login);
+router.get(
+  "/validate-wallet/:walletAddress",
+  AuthController.validateWalletFormat
+);
+router.get(
+  "/check-wallet/:walletAddress",
+  AuthController.checkWalletAvailability
+);
+router.get("/check-email/:email", AuthController.checkEmailAvailability);
 
-router.post("/send-verification-email", AuthController.resendVerificationEmail);
-router.get("/verify-email/:token", AuthController.verifyEmail);
-router.get("/verify-email", AuthController.verifyEmail); // Support query param method
-router.post("/resend-verification", AuthController.resendVerificationEmail);
+// Protected routes
+router.get(
+  "/profile",
+  authMiddleware.authMiddleware,
+  AuthController.getProfile
+);
+router.post(
+  "/validate-token",
+  authMiddleware.authMiddleware,
+  AuthController.validateToken
+);
+router.post(
+  "/refresh-token",
+  authMiddleware.authMiddleware,
+  AuthController.refreshToken
+);
+router.post("/logout", authMiddleware.authMiddleware, AuthController.logout);
 
-// Wallet verification routes
-router.post("/verify-wallet", AuthController.verifyWallet);
-router.post("/validate-wallet-format", AuthController.validateWalletFormat);
+// Routes requiring specific profile types
+router.get(
+  "/user-only",
+  authMiddleware.authMiddleware,
+  authMiddleware.requireUserProfile,
+  (req: AuthenticatedRequest, res) => {
+    res.json({
+      success: true,
+      message: "User-only route accessed successfully",
+    });
+  }
+);
 
-// Protected routes - temporarily commented out due to interface mismatch
-// router.get('/protected', authMiddleware.authMiddleware, AuthController.protectedRoute);
-// router.get('/verification-status', authMiddleware.authMiddleware, AuthController.checkVerificationStatus);
-
-// Routes requiring verified email - temporarily commented out due to interface mismatch
-// router.get('/verified-only',
-//   authMiddleware.authMiddleware,
-//   authMiddleware.requireVerifiedEmail,
-//   (req, res) => {
-//     res.json({ message: "You have access to this protected route because your email is verified!" });
-//   }
-// );
+router.get(
+  "/organization-only",
+  authMiddleware.authMiddleware,
+  authMiddleware.requireOrganizationProfile,
+  (req: AuthenticatedRequest, res) => {
+    res.json({
+      success: true,
+      message: "Organization-only route accessed successfully",
+    });
+  }
+);
 
 export default router;

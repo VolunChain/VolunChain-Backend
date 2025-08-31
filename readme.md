@@ -236,19 +236,6 @@ npm run db:seed
 
 ---
 
-## 🔌 Supabase Integration
-
-This project uses Supabase for external data access and future integrations.
-
-Update your `.env` file with:
-
-```bash
-SUPABASE_URL=...
-SUPABASE_ANON_KEY=...
-```
-
----
-
 ## 📁 Module Overview
 
 ### Core Modules

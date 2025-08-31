@@ -12,10 +12,9 @@ import { Request } from "express";
  * This interface combines all user properties needed across the application
  */
 export interface AuthenticatedUser {
-  id: string | number;
+  userId: string;
   email: string;
-  role: string;
-  isVerified: boolean;
+  profileType: "user" | "organization";
 }
 
 /**
@@ -31,32 +30,34 @@ export interface AuthenticatedRequest extends Request {
  * Decoded JWT user interface (from auth middleware)
  */
 export interface DecodedUser {
-  id: string | number;
+  userId: string;
   email: string;
-  role?: string;
-  isVerified?: boolean;
+  profileType: "user" | "organization";
   iat?: number;
   exp?: number;
 }
 
 // Legacy user interface for backward compatibility
 export interface LegacyUser {
-  id: number | string;
-  role: string;
-  isVerified?: boolean;
-  email?: string;
+  userId: string;
+  profileType: "user" | "organization";
+  email: string;
 }
 
 /**
  * Type guard to check if user has required authentication properties
  */
-export function isAuthenticatedUser(user: any): user is AuthenticatedUser {
+export function isAuthenticatedUser(user: unknown): user is AuthenticatedUser {
   return (
-    user &&
-    (typeof user.id === "string" || typeof user.id === "number") &&
-    typeof user.email === "string" &&
-    typeof user.role === "string" &&
-    typeof user.isVerified === "boolean"
+    user !== null &&
+    typeof user === "object" &&
+    "userId" in user &&
+    "email" in user &&
+    "profileType" in user &&
+    typeof (user as Record<string, unknown>).userId === "string" &&
+    typeof (user as Record<string, unknown>).email === "string" &&
+    ((user as Record<string, unknown>).profileType === "user" ||
+      (user as Record<string, unknown>).profileType === "organization")
   );
 }
 
@@ -67,10 +68,9 @@ export function toAuthenticatedUser(
   decodedUser: DecodedUser
 ): AuthenticatedUser {
   return {
-    id: decodedUser.id,
+    userId: decodedUser.userId,
     email: decodedUser.email,
-    role: decodedUser.role || "user",
-    isVerified: decodedUser.isVerified || false,
+    profileType: decodedUser.profileType,
   };
 }
 
@@ -78,18 +78,15 @@ export function toAuthenticatedUser(
  * Helper function to convert AuthenticatedUser to LegacyUser for backward compatibility
  */
 export const toLegacyUser = (user: AuthenticatedUser): LegacyUser => ({
-  id: user.id,
-  role: user.role,
-  isVerified: user.isVerified,
+  userId: user.userId,
+  profileType: user.profileType,
   email: user.email,
 });
 
-// Global Express namespace extension
-declare global {
-  namespace Express {
-    interface Request {
-      user?: AuthenticatedUser;
-      traceId?: string;
-    }
+// Global Express interface extension
+declare module "express-serve-static-core" {
+  interface Request {
+    user?: AuthenticatedUser;
+    traceId?: string;
   }
 }
