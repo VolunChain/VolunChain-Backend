@@ -4,7 +4,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export default class UserVolunteerController {
-  async addUserToVolunteer(req: Request, res: Response): Promise<Response> {
+  async addUserToVolunteer(req: Request, res: Response): Promise<void> {
     try {
       const { userId, volunteerId } = req.params;
 
@@ -17,9 +17,10 @@ export default class UserVolunteerController {
       });
 
       if (existing) {
-        return res.status(400).json({
+        res.status(400).json({
           error: "User is already assigned to this volunteer",
         });
+        return;
       }
 
       const userVolunteer = await prisma.userVolunteer.create({
@@ -29,15 +30,15 @@ export default class UserVolunteerController {
         },
       });
 
-      return res.status(201).json(userVolunteer);
+      res.status(201).json(userVolunteer);
     } catch (error) {
-      return res.status(500).json({
+      res.status(500).json({
         error: error instanceof Error ? error.message : "Unknown error",
       });
     }
   }
 
-  async getVolunteersByUserId(req: Request, res: Response): Promise<Response> {
+  async getVolunteersByUserId(req: Request, res: Response): Promise<void> {
     try {
       const { userId } = req.params;
 
@@ -48,15 +49,15 @@ export default class UserVolunteerController {
         },
       });
 
-      return res.status(200).json(userVolunteers);
+      res.status(200).json(userVolunteers);
     } catch (error) {
-      return res.status(500).json({
+      res.status(500).json({
         error: error instanceof Error ? error.message : "Unknown error",
       });
     }
   }
 
-  async getUsersByVolunteerId(req: Request, res: Response): Promise<Response> {
+  async getUsersByVolunteerId(req: Request, res: Response): Promise<void> {
     try {
       const { volunteerId } = req.params;
 
@@ -67,18 +68,15 @@ export default class UserVolunteerController {
         },
       });
 
-      return res.status(200).json(userVolunteers);
+      res.status(200).json(userVolunteers);
     } catch (error) {
-      return res.status(500).json({
+      res.status(500).json({
         error: error instanceof Error ? error.message : "Unknown error",
       });
     }
   }
 
-  async removeUserFromVolunteer(
-    req: Request,
-    res: Response
-  ): Promise<Response> {
+  async removeUserFromVolunteer(req: Request, res: Response): Promise<void> {
     try {
       const { userId, volunteerId } = req.params;
 
@@ -90,16 +88,17 @@ export default class UserVolunteerController {
       });
 
       if (deleted.count === 0) {
-        return res.status(404).json({
+        res.status(404).json({
           error: "User-Volunteer relationship not found",
         });
+        return;
       }
 
-      return res.status(200).json({
+      res.status(200).json({
         message: "User removed from volunteer successfully",
       });
     } catch (error) {
-      return res.status(500).json({
+      res.status(500).json({
         error: error instanceof Error ? error.message : "Unknown error",
       });
     }

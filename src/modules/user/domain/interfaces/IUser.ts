@@ -4,7 +4,7 @@ export interface IUser {
   lastName: string;
   email: string;
   password: string;
-  wallet: string;
+  wallet?: string;
   isVerified: boolean;
   verificationToken?: string;
   verificationTokenExpires?: Date;
