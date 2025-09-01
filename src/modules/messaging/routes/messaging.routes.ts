@@ -1,16 +1,10 @@
 import { Router } from "express";
-import { MessagingController } from "../controllers/MessagingController";
-import { MessagingService } from "../application/services/MessagingService";
-import { MessagePrismaRepository } from "../repositories/implementations/message-prisma.repository";
+import { MessagingModuleFactory } from "../factories/messaging.factory";
 import { authMiddleware } from "../../../middleware/authMiddleware";
-import { PrismaClient } from "@prisma/client";
 
 const router = Router();
-const prisma = new PrismaClient();
 
-const messageRepository = new MessagePrismaRepository(prisma);
-const messagingService = new MessagingService(messageRepository, prisma);
-const messagingController = new MessagingController(messagingService);
+const messagingController = MessagingModuleFactory.createMessagingController();
 
 router.use(authMiddleware);
 

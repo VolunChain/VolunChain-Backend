@@ -1,10 +1,10 @@
-import { container } from "../../../../shared/infrastructure/container";
 import { prisma } from "../../../../config/prisma";
 import { ICertificateService } from "../../domain/interfaces/ICertificateService";
+import { CertificateModuleFactory } from "../../factories/certificate.factory";
 import { AuthenticatedRequest } from "../../../../types/auth.types";
 import { Response } from "express";
 
-const certificateService: ICertificateService = container.certificateService;
+const certificateService: ICertificateService = CertificateModuleFactory.createCertificateService();
 
 export const downloadCertificate = async (
   req: AuthenticatedRequest,
