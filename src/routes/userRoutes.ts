@@ -5,11 +5,13 @@ import {
   RequestHandler,
   NextFunction,
 } from "express";
-import UserController from "../modules/user/presentation/controllers/UserController.stub";
+import UserController from "../modules/user/presentation/controllers/UserController";
+import UserVolunteerController from "../modules/user/presentation/controllers/userVolunteer.controller";
 import { authMiddleware } from "../middleware/authMiddleware";
 import { AuthenticatedRequest } from "../types/auth.types";
 
 const userController = new UserController();
+const userVolunteerController = new UserVolunteerController();
 const router = Router();
 
 type AuthenticatedHandler = (
@@ -42,6 +44,41 @@ router.put(
   "/users/:id",
   authMiddleware,
   wrapHandler(userController.updateUser.bind(userController))
+);
+
+// User-Volunteer routes
+router.post(
+  "/users/:userId/volunteers/:volunteerId",
+  authMiddleware,
+  wrapHandler(
+    userVolunteerController.addUserToVolunteer.bind(userVolunteerController)
+  )
+);
+
+router.get(
+  "/users/:userId/volunteers",
+  authMiddleware,
+  wrapHandler(
+    userVolunteerController.getVolunteersByUserId.bind(userVolunteerController)
+  )
+);
+
+router.get(
+  "/volunteers/:volunteerId/users",
+  authMiddleware,
+  wrapHandler(
+    userVolunteerController.getUsersByVolunteerId.bind(userVolunteerController)
+  )
+);
+
+router.delete(
+  "/users/:userId/volunteers/:volunteerId",
+  authMiddleware,
+  wrapHandler(
+    userVolunteerController.removeUserFromVolunteer.bind(
+      userVolunteerController
+    )
+  )
 );
 
 export default router;
