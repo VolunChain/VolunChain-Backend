@@ -1,6 +1,6 @@
 # VolunChain
 
-**Innovating Volunteering with Blockchain ��**
+## Innovating volunteering with blockchain 🌍
 
 VolunChain is a production-grade blockchain-powered platform that connects volunteers with organizations in a transparent, decentralized, and efficient way. Built with Domain-Driven Design principles and strict architectural standards.
 
@@ -98,8 +98,8 @@ src/modules/<domain>/
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/your-repo/volunchain-backend.git
-   cd volunchain-backend
+   git clone https://github.com/VolunChain/VolunChain-Backend.git
+   cd VolunChain-Backend
    ```
 
 2. **Install dependencies**
@@ -152,7 +152,7 @@ npm test
 # Run specific test types
 npm run test:unit          # Unit tests
 npm run test:integration   # Integration tests
-npm run test:e2e          # End-to-end tests
+npm run test:e2e           # End-to-end tests
 
 # Run tests for specific module
 npm test -- --testPathPattern=modules/user
