@@ -2,6 +2,11 @@ import { Entity, Column, ManyToOne, JoinColumn } from "typeorm";
 import { BaseEntity } from "../../../shared/domain/entities/base.entity";
 import { Organization } from "../../../organization/domain/entities/organization.entity";
 import { User } from "@/modules/user/domain/entities/User.entity";
+import {
+  NFTAlreadyMintedError,
+  NFTValidationError,
+  NFTMetadataError,
+} from "../exceptions";
 
 @Entity("nfts")
 export class NFT extends BaseEntity {
@@ -41,7 +46,13 @@ export class NFT extends BaseEntity {
     metadataUri?: string
   ): void {
     if (this.isMinted) {
-      throw new Error("NFT is already minted");
+      throw new NFTAlreadyMintedError(this.id);
+    }
+
+    if (!tokenId || !contractAddress) {
+      throw new NFTValidationError(
+        "Token ID and contract address are required for minting"
+      );
     }
 
     this.tokenId = tokenId;
@@ -51,6 +62,9 @@ export class NFT extends BaseEntity {
   }
 
   public updateMetadata(metadataUri: string): void {
+    if (!metadataUri || metadataUri.trim().length === 0) {
+      throw new NFTMetadataError("Metadata URI cannot be empty");
+    }
     this.metadataUri = metadataUri;
   }
 
