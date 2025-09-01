@@ -17,8 +17,8 @@ export class User extends BaseEntity {
   @Column()
   password: string;
 
-  @Column({ unique: true })
-  wallet: string;
+  @Column({ unique: true, nullable: true })
+  wallet?: string;
 
   @Column({ default: false })
   isVerified: boolean;
