@@ -1,5 +1,6 @@
 import AuthService from "../../../services/AuthService";
 import { WalletService } from "../application/services/WalletService";
+import { container } from "../../../shared/infrastructure/container";
 
 // Mock the wallet service
 jest.mock("../application/services/WalletService");
@@ -13,10 +14,18 @@ jest.mock("../../../config/prisma", () => ({
 }));
 
 // Mock other dependencies
-jest.mock("../../../modules/user/repositories/PrismaUserRepository");
-jest.mock("../../../modules/auth/use-cases/send-verification-email.usecase");
-jest.mock("../../../modules/auth/use-cases/verify-email.usecase");
-jest.mock("../../../modules/auth/use-cases/resend-verification-email.usecase");
+jest.mock("../../../shared/infrastructure/container", () => ({
+  container: {
+    [Symbol.for("USER_REPOSITORY")]: {
+      findById: jest.fn(),
+      findByEmail: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    },
+  },
+  USER_REPOSITORY: Symbol.for("USER_REPOSITORY"),
+}));
 
 describe("Wallet Auth Integration", () => {
   let authService: AuthService;
@@ -94,8 +103,7 @@ describe("Wallet Auth Integration", () => {
 
     it("should register user with valid wallet", async () => {
       const { prisma } = require("../../../config/prisma");
-      const mockUserRepository =
-        require("../../../modules/user/repositories/PrismaUserRepository").PrismaUserRepository;
+      const mockUserRepository = container[Symbol.for("USER_REPOSITORY")] as any;
       const mockSendEmailUseCase =
         require("../../../modules/auth/use-cases/send-verification-email.usecase").SendVerificationEmailUseCase;
 
@@ -172,8 +180,7 @@ describe("Wallet Auth Integration", () => {
 
     it("should reject registration with already registered wallet", async () => {
       const { prisma } = require("../../../config/prisma");
-      const mockUserRepository =
-        require("../../../modules/user/repositories/PrismaUserRepository").PrismaUserRepository;
+      const mockUserRepository = container[Symbol.for("USER_REPOSITORY")] as any;
 
       mockWalletService.verifyWallet.mockResolvedValue({
         success: true,

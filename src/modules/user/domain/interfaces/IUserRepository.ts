@@ -1,21 +1,21 @@
-import { IUser } from "./IUser";
+import { UserDTO, CreateUserData, UpdateUserData } from "../dto/UserDTO";
 
 export interface IUserRepository {
-  create(user: IUser): Promise<IUser>;
-  findById(id: string): Promise<IUser | null>;
-  findByEmail(email: string): Promise<IUser | null>;
-  findByVerificationToken(token: string): Promise<IUser | null>;
+  findById(id: string): Promise<UserDTO | null>;
+  findByEmail(email: string): Promise<UserDTO | null>;
+  create(data: CreateUserData): Promise<UserDTO>;
+  update(id: string, data: UpdateUserData): Promise<UserDTO>;
+  delete(id: string): Promise<void>;
+  findByVerificationToken(token: string): Promise<UserDTO | null>;
   findAll(
     page: number,
     pageSize: number
-  ): Promise<{ users: IUser[]; total: number }>;
-  update(user: Partial<IUser>): Promise<IUser>;
-  delete(id: string): Promise<void>;
+  ): Promise<{ users: UserDTO[]; total: number }>;
   setVerificationToken(
     userId: string,
     token: string,
     expires: Date
-  ): Promise<any>;
+  ): Promise<void>;
   isUserVerified(userId: string): Promise<boolean>;
-  verifyUser(userId: string): Promise<any>;
+  verifyUser(userId: string): Promise<void>;
 }

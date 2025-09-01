@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { PrismaUserRepository } from "../modules/user/repositories/PrismaUserRepository";
+import { container, USER_REPOSITORY } from "../shared/infrastructure/container";
+import { IUserRepository } from "../modules/user/domain/interfaces/IUserRepository";
 import {
   AuthenticatedRequest,
   DecodedUser,
@@ -8,7 +9,7 @@ import {
 } from "../types/auth.types";
 
 const SECRET_KEY = process.env.JWT_SECRET || "defaultSecret";
-const userRepository = new PrismaUserRepository();
+const userRepository = container[USER_REPOSITORY] as IUserRepository;
 
 export const authMiddleware = async (
   req: Request,

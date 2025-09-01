@@ -1,30 +1,32 @@
 import { IUserRepository } from "../domain/interfaces/IUserRepository";
 import { CreateUserDto } from "../dto/CreateUserDto";
-import { User } from "../domain/entities/User.entity";
-import bcrypt from "bcryptjs";
 import { UpdateUserDto } from "../dto/UpdateUserDto";
+import { UserDTO, CreateUserData, UpdateUserData } from "../domain/dto/UserDTO";
+import bcrypt from "bcryptjs";
 
 export class CreateUserUseCase {
   constructor(private userRepository: IUserRepository) {}
 
-  async execute(data: CreateUserDto) {
+  async execute(data: CreateUserDto): Promise<UserDTO> {
     const hashedPassword = bcrypt.hashSync(data.password, 10);
 
-    const user = new User();
-    user.id = crypto.randomUUID();
-    user.name = data.name;
-    user.lastName = data.lastName;
-    user.email = data.email;
-    user.password = hashedPassword;
-    user.wallet = data.wallet;
-    return this.userRepository.create(user);
+    const createUserData: CreateUserData = {
+      name: data.name,
+      lastName: data.lastName,
+      email: data.email,
+      password: hashedPassword,
+      wallet: data.wallet || "",
+      isVerified: false,
+    };
+
+    return this.userRepository.create(createUserData);
   }
 }
 
 export class GetUserByIdUseCase {
   constructor(private userRepository: IUserRepository) {}
 
-  async execute(id: string) {
+  async execute(id: string): Promise<UserDTO> {
     if (!id) {
       throw new Error("User ID is required.");
     }
@@ -41,7 +43,7 @@ export class GetUserByIdUseCase {
 export class GetUserByEmailUseCase {
   constructor(private userRepository: IUserRepository) {}
 
-  async execute(email: string) {
+  async execute(email: string): Promise<UserDTO> {
     if (!email) {
       throw new Error("Email is required.");
     }
@@ -78,7 +80,15 @@ export class DeleteUserUseCase {
 export class UpdateUserUseCase {
   constructor(private userRepository: IUserRepository) {}
 
-  async execute(data: UpdateUserDto): Promise<void> {
-    await this.userRepository.update(data);
+  async execute(id: string, data: UpdateUserDto): Promise<UserDTO> {
+    const updateUserData: UpdateUserData = {
+      ...(data.name && { name: data.name }),
+      ...(data.lastName !== undefined && { lastName: data.lastName }),
+      ...(data.email && { email: data.email }),
+      ...(data.password && { password: data.password }),
+      ...(data.wallet && { wallet: data.wallet }),
+    };
+
+    return this.userRepository.update(id, updateUserData);
   }
 }
