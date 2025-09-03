@@ -1,37 +1,20 @@
 import { Request, Response } from "express";
+import { Request, Response } from 'express';
+import { prepareClaimTx } from '../../use-cases/prepareClaimTx.use-case';
+import { submitSignedClaim } from '../../use-cases/submitSignedClaim.use-case';
 
-/**
- * Stub controller for NFT functionality
- * This replaces the original controller that referenced deleted services
- * TODO: Implement proper NFT controller using new modular architecture
- */
-class NFTController {
-  async createNFT(req: Request, res: Response) {
-    res.status(501).json({
-      message: "NFT service temporarily disabled during migration",
-      error: "Service migration in progress"
-    });
+export class NFTController {
+  static async prepareClaim(req: Request, res: Response) {
+    // TODO(security): Validar que el usuario autenticado puede reclamar el NFT.
+    const { nftId, claimantPublicKey } = req.body;
+    const result = await prepareClaimTx({ nftId, claimantPublicKey });
+    res.status(200).json(result);
   }
 
-  async getNFTById(req: Request, res: Response) {
-    res.status(501).json({
-      message: "NFT service temporarily disabled during migration",
-      error: "Service migration in progress"
-    });
-  }
-
-  async getNFTsByUserId(req: Request, res: Response) {
-    res.status(501).json({
-      message: "NFT service temporarily disabled during migration",
-      error: "Service migration in progress"
-    });
-  }
-
-  async deleteNFT(req: Request, res: Response) {
-    res.status(501).json({
-      message: "NFT service temporarily disabled during migration",
-      error: "Service migration in progress"
-    });
+  static async submitClaim(req: Request, res: Response) {
+    const { nftId, signedXdr } = req.body;
+    const result = await submitSignedClaim({ nftId, signedXdr });
+    res.status(202).json(result);
   }
 }
 
