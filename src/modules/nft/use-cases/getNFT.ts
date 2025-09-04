@@ -1,4 +1,4 @@
-import { INFTRepository } from "../repositories/INFTRepository";
+import { INFTRepository } from "../application/repositories/INFTRepository";
 
 export class GetNFT {
   constructor(private readonly nftRepository: INFTRepository) {}
