@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// src/utils/logger.ts
 export class Logger {
   private context: string;
 
@@ -7,7 +5,7 @@ export class Logger {
     this.context = context;
   }
 
-  private formatMessage(level: string, message: string, meta?: any): string {
+  private formatMessage(level: string, message: string, meta?: object): string {
     const timestamp = new Date().toISOString();
     return JSON.stringify({
       timestamp,
@@ -18,15 +16,15 @@ export class Logger {
     });
   }
 
-  info(message: string, meta?: any) {
+  info(message: string, meta?: object) {
     console.log(this.formatMessage("INFO", message, meta));
   }
 
-  warn(message: string, meta?: any) {
+  warn(message: string, meta?: object) {
     console.warn(this.formatMessage("WARN", message, meta));
   }
 
-  error(message: string, error?: any) {
+  error(message: string, error?: object) {
     console.error(this.formatMessage("ERROR", message, error));
   }
 }

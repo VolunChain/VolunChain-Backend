@@ -3,7 +3,7 @@ import {
   CustomError,
   InternalServerError,
 } from "../modules/shared/application/errors";
-import { Logger } from "../utils/logger";
+import { Logger } from "../utils";
 
 const logger = new Logger("ERROR_HANDLER");
 
@@ -51,7 +51,7 @@ export const errorHandler = (
 
   // Handle different types of errors
   if (err instanceof CustomError) {
-    return res.status(err.statusCode).json({
+    res.status(err.statusCode).json({
       code: err.code,
       message: err.message,
       ...(err.details && { details: err.details }),
@@ -64,8 +64,9 @@ export const errorHandler = (
     err.message || "An unexpected error occurred"
   );
 
-  return res.status(internalError.statusCode).json({
+  res.status(internalError.statusCode).json({
     ...internalError.toJSON(),
     ...(req.traceId && { traceId: req.traceId }),
   });
+  next();
 };

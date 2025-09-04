@@ -1,6 +1,6 @@
+import { Application } from "express";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yaml";
-import { Express } from "express";
 import fs from "fs";
 
 export class SwaggerConfig {
@@ -8,7 +8,7 @@ export class SwaggerConfig {
     fs.readFileSync("./openapi.yaml", "utf8")
   );
 
-  static setup(app: Express): void {
+  static setup(app: Application): void {
     if (process.env.NODE_ENV !== "development") {
       console.log("⚠️ Swagger is disabled in production mode.");
       return;

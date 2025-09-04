@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { validate, ValidationError } from "class-validator";
-import { plainToClass } from "class-transformer";
+import { plainToInstance } from "class-transformer";
 
 export interface ValidationErrorResponse {
   success: false;
@@ -19,7 +19,7 @@ export function validateDto<T extends object>(dtoClass: new () => T) {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const dto = plainToClass(dtoClass, req.body);
+      const dto = plainToInstance(dtoClass, req.body);
       const errors = await validate(dto);
 
       if (errors.length > 0) {
@@ -57,7 +57,7 @@ export function validateQueryDto<T extends object>(dtoClass: new () => T) {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const dto = plainToClass(dtoClass, req.query);
+      const dto = plainToInstance(dtoClass, req.query);
       const errors = await validate(dto);
 
       if (errors.length > 0) {
@@ -77,7 +77,9 @@ export function validateQueryDto<T extends object>(dtoClass: new () => T) {
         return;
       }
 
-      req.query = dto as Record<string, unknown>;
+      Object.keys(req.query).forEach((key) => delete req.query[key]);
+      Object.assign(req.query, dto);
+
       next();
     } catch {
       res.status(500).json({
@@ -95,7 +97,7 @@ export function validateParamsDto<T extends object>(dtoClass: new () => T) {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const dto = plainToClass(dtoClass, req.params);
+      const dto = plainToInstance(dtoClass, req.params);
       const errors = await validate(dto);
 
       if (errors.length > 0) {

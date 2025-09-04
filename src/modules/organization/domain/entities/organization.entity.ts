@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { BaseEntity } from "../../../shared/domain/entities/base.entity";
 
 export interface OrganizationProps {
@@ -12,9 +13,12 @@ export interface OrganizationProps {
   isVerified: boolean;
   logoUrl?: string;
   walletAddress?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-export class Organization extends BaseEntity {
+export class OrganizationEntity extends BaseEntity {
+  public readonly id: string;
   public readonly name: string;
   public readonly email: string;
   public readonly description: string;
@@ -28,7 +32,7 @@ export class Organization extends BaseEntity {
 
   constructor(
     props: OrganizationProps,
-    id?: string,
+    id: string,
     createdAt?: Date,
     updatedAt?: Date
   ) {
@@ -43,14 +47,19 @@ export class Organization extends BaseEntity {
     this.isVerified = props.isVerified;
     this.logoUrl = props.logoUrl;
     this.walletAddress = props.walletAddress;
+    this.createdAt = props.createdAt ?? new Date();
+    this.updatedAt = props.updatedAt ?? new Date();
   }
 
-  public static create(props: OrganizationProps, id?: string): Organization {
-    return new Organization(props, id);
+  public static create(
+    props: OrganizationProps,
+    id: string
+  ): OrganizationEntity {
+    return new OrganizationEntity(props, id);
   }
 
-  public update(props: Partial<OrganizationProps>): Organization {
-    return new Organization(
+  public update(props: Partial<OrganizationProps>): OrganizationEntity {
+    return new OrganizationEntity(
       {
         id: this.id,
         name: props.name ?? this.name,
