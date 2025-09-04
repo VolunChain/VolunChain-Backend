@@ -1,4 +1,4 @@
-import { INFTRepository } from "../repositories/INFTRepository";
+import { INFTRepository } from "../application/repositories/INFTRepository";
 
 export class GetNFTByUserId {
   constructor(private readonly nftRepository: INFTRepository) {}

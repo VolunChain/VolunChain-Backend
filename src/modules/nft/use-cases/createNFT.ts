@@ -1,4 +1,4 @@
-import { INFTRepository } from "../repositories/INFTRepository";
+import { INFTRepository } from "../application/repositories/INFTRepository";
 import { NFTDomain as NFT } from "../domain/entities/nft.entity";
 import { CreateNFTDto } from "../dto/create-nft.dto";
 

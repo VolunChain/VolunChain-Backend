@@ -1,5 +1,5 @@
-import { NFTDomain as NFT } from "../domain/entities/nft.entity";
-import { INFT } from "../domain/interfaces/nft.interface";
+import { NFTDomain as NFT } from "../../domain/entities/nft.entity";
+import { INFT } from "../../domain/interfaces/nft.interface";
 
 export interface INFTRepository {
   create(nft: INFT): Promise<NFT>;

@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { INFTRepository } from "./INFTRepository";
-import { NFTDomain as NFT } from "../domain/entities/nft.entity";
+import { NFTDomain as NFT } from "../../domain/entities/nft.entity";
 
 // Define our own types based on the Prisma schema
 interface PrismaNFT {
