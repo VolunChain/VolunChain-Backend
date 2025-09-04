@@ -1,8 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import {
-  CustomError,
-  InternalServerError,
-} from "../modules/shared/application/errors";
+import { AppException } from "../shared/exceptions/AppException";
 import { Logger } from "../utils/logger";
 
 const logger = new Logger("ERROR_HANDLER");
@@ -49,23 +46,21 @@ export const errorHandler = (
     traceId: req.traceId,
   });
 
-  // Handle different types of errors
-  if (err instanceof CustomError) {
+  // Handle domain exceptions
+  if (err instanceof AppException) {
     return res.status(err.statusCode).json({
-      code: err.code,
+      statusCode: err.statusCode,
       message: err.message,
-      ...(err.details && { details: err.details }),
+      errorCode: err.errorCode,
       ...(req.traceId && { traceId: req.traceId }),
     });
   }
 
-  // For unknown errors, convert to InternalServerError
-  const internalError = new InternalServerError(
-    err.message || "An unexpected error occurred"
-  );
-
-  return res.status(internalError.statusCode).json({
-    ...internalError.toJSON(),
+  // For unknown errors, return generic 500 error
+  return res.status(500).json({
+    statusCode: 500,
+    message: "Internal server error",
+    errorCode: "INTERNAL_ERROR",
     ...(req.traceId && { traceId: req.traceId }),
   });
 };

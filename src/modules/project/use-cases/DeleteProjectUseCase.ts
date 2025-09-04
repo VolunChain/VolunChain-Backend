@@ -1,4 +1,5 @@
 import { IProjectRepository } from "../repositories/IProjectRepository";
+import { NotFoundException } from "../../../shared/exceptions/DomainExceptions";
 
 export class DeleteProjectUseCase {
   constructor(private projectRepository: IProjectRepository) {}
@@ -7,7 +8,7 @@ export class DeleteProjectUseCase {
     const project = await this.projectRepository.findById(id);
 
     if (!project) {
-      throw new Error("Project not found");
+      throw new NotFoundException("Project not found");
     }
 
     await this.projectRepository.delete(id);
