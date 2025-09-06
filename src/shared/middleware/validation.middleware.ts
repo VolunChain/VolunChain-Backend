@@ -1,16 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { validate, ValidationError } from "class-validator";
 import { plainToClass } from "class-transformer";
-
-export interface ValidationErrorResponse {
-  success: false;
-  error: string;
-  details: Array<{
-    property: string;
-    value: unknown;
-    constraints: string[];
-  }>;
-}
+import { ValidationException } from "../exceptions";
 
 export function validateDto<T extends object>(dtoClass: new () => T) {
   return async (
@@ -23,29 +14,26 @@ export function validateDto<T extends object>(dtoClass: new () => T) {
       const errors = await validate(dto);
 
       if (errors.length > 0) {
-        const errorResponse: ValidationErrorResponse = {
-          success: false,
-          error: "Validation failed",
-          details: errors.map((error: ValidationError) => ({
-            property: error.property,
-            value: error.value,
-            constraints: error.constraints
-              ? Object.values(error.constraints)
-              : [],
-          })),
-        };
-
-        res.status(400).json(errorResponse);
-        return;
+        const formattedErrors = errors.map((error: ValidationError) => ({
+          property: error.property,
+          value: error.value,
+          constraints: error.constraints
+            ? Object.values(error.constraints)
+            : [],
+        }));
+        
+        throw new ValidationException('DTO validation failed', { errors: formattedErrors });
       }
 
       req.body = dto;
       next();
-    } catch {
-      res.status(500).json({
-        success: false,
-        error: "Internal server error during validation",
-      });
+    } catch (error) {
+      // Re-throw domain exceptions as-is
+      if (error instanceof ValidationException) {
+        throw error;
+      }
+      // Wrap unexpected errors
+      throw new ValidationException('Internal server error during validation');
     }
   };
 }
@@ -61,29 +49,26 @@ export function validateQueryDto<T extends object>(dtoClass: new () => T) {
       const errors = await validate(dto);
 
       if (errors.length > 0) {
-        const errorResponse: ValidationErrorResponse = {
-          success: false,
-          error: "Query validation failed",
-          details: errors.map((error: ValidationError) => ({
-            property: error.property,
-            value: error.value,
-            constraints: error.constraints
-              ? Object.values(error.constraints)
-              : [],
-          })),
-        };
-
-        res.status(400).json(errorResponse);
-        return;
+        const formattedErrors = errors.map((error: ValidationError) => ({
+          property: error.property,
+          value: error.value,
+          constraints: error.constraints
+            ? Object.values(error.constraints)
+            : [],
+        }));
+        
+        throw new ValidationException('Query validation failed', { errors: formattedErrors });
       }
 
       req.query = dto as Record<string, unknown>;
       next();
-    } catch {
-      res.status(500).json({
-        success: false,
-        error: "Internal server error during query validation",
-      });
+    } catch (error) {
+      // Re-throw domain exceptions as-is
+      if (error instanceof ValidationException) {
+        throw error;
+      }
+      // Wrap unexpected errors
+      throw new ValidationException('Internal server error during query validation');
     }
   };
 }
@@ -99,29 +84,26 @@ export function validateParamsDto<T extends object>(dtoClass: new () => T) {
       const errors = await validate(dto);
 
       if (errors.length > 0) {
-        const errorResponse: ValidationErrorResponse = {
-          success: false,
-          error: "Parameters validation failed",
-          details: errors.map((error: ValidationError) => ({
-            property: error.property,
-            value: error.value,
-            constraints: error.constraints
-              ? Object.values(error.constraints)
-              : [],
-          })),
-        };
-
-        res.status(400).json(errorResponse);
-        return;
+        const formattedErrors = errors.map((error: ValidationError) => ({
+          property: error.property,
+          value: error.value,
+          constraints: error.constraints
+            ? Object.values(error.constraints)
+            : [],
+        }));
+        
+        throw new ValidationException('Parameters validation failed', { errors: formattedErrors });
       }
 
       req.params = dto as Record<string, string>;
       next();
-    } catch {
-      res.status(500).json({
-        success: false,
-        error: "Internal server error during parameter validation",
-      });
+    } catch (error) {
+      // Re-throw domain exceptions as-is
+      if (error instanceof ValidationException) {
+        throw error;
+      }
+      // Wrap unexpected errors
+      throw new ValidationException('Internal server error during parameter validation');
     }
   };
 }

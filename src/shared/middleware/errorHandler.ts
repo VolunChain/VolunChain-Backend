@@ -1,12 +1,16 @@
 import { Request, Response, NextFunction } from "express";
 import { AppException } from "../exceptions/AppException";
 import { InternalServerException } from "../exceptions/DomainExceptions";
+import { Logger } from "../../utils/logger";
+
+const logger = new Logger("ERROR_HANDLER");
 
 interface ErrorResponse {
   statusCode: number;
-  message: string;
   errorCode: string;
-  stack?: string;
+  message: string;
+  details?: unknown;
+  traceId?: string;
 }
 
 export function errorHandler(
@@ -15,8 +19,8 @@ export function errorHandler(
   res: Response,
   next: NextFunction
 ) {
-  // Log the error for debugging (you might want to use a proper logger in production)
-  console.error(error);
+  // Extract traceId from request if available
+  const traceId = (req as any).traceId;
 
   let response: ErrorResponse;
 
@@ -31,10 +35,21 @@ export function errorHandler(
     response = internalError.toJSON();
   }
 
-  // Add stack trace in development environment
-  if (process.env.NODE_ENV === "development") {
-    response.stack = error.stack;
+  // Add traceId if available
+  if (traceId) {
+    response.traceId = traceId;
   }
+
+  // Log the error with context
+  logger.error("Unhandled error occurred", {
+    errorCode: response.errorCode,
+    status: response.statusCode,
+    message: response.message,
+    traceId,
+    path: req.path,
+    method: req.method,
+    stack: error.stack,
+  });
 
   res.status(response.statusCode).json(response);
 }

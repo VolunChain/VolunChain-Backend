@@ -1,11 +1,13 @@
 export class AppException extends Error {
   public readonly statusCode: number;
   public readonly errorCode: string;
+  public readonly details?: unknown;
 
-  constructor(message: string, statusCode: number, errorCode: string) {
+  constructor(message: string, statusCode: number, errorCode: string, details?: unknown) {
     super(message);
     this.statusCode = statusCode;
     this.errorCode = errorCode;
+    this.details = details;
     this.name = this.constructor.name;
     Error.captureStackTrace(this, this.constructor);
   }
@@ -15,6 +17,7 @@ export class AppException extends Error {
       statusCode: this.statusCode,
       message: this.message,
       errorCode: this.errorCode,
+      ...(this.details && { details: this.details }),
     };
   }
 }

@@ -83,6 +83,56 @@ src/modules/<domain>/
 - **Containerization:** Docker, Docker Compose
 - **Architecture:** Domain-Driven Design (DDD)
 
+## 🚨 Error Handling & Exceptions
+
+VolunChain uses a standardized error handling system with domain-specific exceptions:
+
+### Allowed Exceptions
+
+- **ValidationException (400)**: Invalid input data or DTO validation failures
+- **AuthenticationException (401)**: Invalid credentials, missing tokens, or authentication failures
+- **AuthorizationException (403)**: Insufficient permissions or access denied
+- **ConflictException (409)**: Resource conflicts (e.g., duplicate emails, unique constraint violations)
+- **InternalServerException (500)**: Unexpected system errors or database failures
+
+### Error Response Format
+
+All errors follow this consistent JSON structure:
+
+```json
+{
+  "statusCode": 400,
+  "errorCode": "VALIDATION_ERROR",
+  "message": "DTO validation failed",
+  "details": { "errors": [...] },
+  "traceId": "abc-123-def"
+}
+```
+
+### Implementation Rules
+
+1. **Controllers**: Never throw raw `Error` objects or craft custom JSON responses
+2. **Use Cases**: Surface domain exceptions only, no ad-hoc error handling
+3. **Repositories**: Use `prismaGuard()` wrapper to catch and map Prisma errors
+4. **Global Handler**: All exceptions are processed by the unified error handler
+5. **Validation**: DTO failures automatically become `ValidationException`
+
+### Example Usage
+
+```typescript
+// ✅ Correct - Throw domain exceptions
+if (!user) {
+  throw new ValidationException("User not found");
+}
+
+// ❌ Incorrect - Raw errors or custom responses
+if (!user) {
+  throw new Error("User not found");
+  // or
+  res.status(400).json({ error: "User not found" });
+}
+```
+
 ---
 
 ## 🚀 Quick Start

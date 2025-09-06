@@ -3,6 +3,7 @@ import {
   VerifyEmailRequestDTO,
   VerifyEmailResponseDTO,
 } from "../dto/email-verification.dto";
+import { ValidationException, AuthenticationException } from "../../../../shared/exceptions";
 
 export class VerifyEmailUseCase {
   constructor(private userRepository: IUserRepository) {}
@@ -14,11 +15,7 @@ export class VerifyEmailUseCase {
       // Find user by verification token
       const user = await this.userRepository.findByVerificationToken(token);
       if (!user) {
-        return {
-          success: false,
-          message: "Invalid or expired verification token",
-          verified: false,
-        };
+        throw new AuthenticationException("Invalid or expired verification token");
       }
 
       // If user is already verified
@@ -36,7 +33,7 @@ export class VerifyEmailUseCase {
         user.verificationTokenExpires &&
         new Date(user.verificationTokenExpires) < now
       ) {
-        throw new Error("Verification token has expired");
+        throw new AuthenticationException("Verification token has expired");
       }
 
       // Verify user
@@ -48,7 +45,12 @@ export class VerifyEmailUseCase {
         verified: true,
       };
     } catch (error) {
-      throw new Error("Invalid or expired verification token");
+      // Re-throw domain exceptions as-is
+      if (error instanceof ValidationException || error instanceof AuthenticationException) {
+        throw error;
+      }
+      // Wrap unexpected errors
+      throw new AuthenticationException("Invalid or expired verification token");
     }
   }
 }
