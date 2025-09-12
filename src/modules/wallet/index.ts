@@ -15,4 +15,4 @@ export { ValidateWalletFormatUseCase } from "./use-cases/ValidateWalletFormatUse
 export { HorizonWalletRepository } from "./repositories/HorizonWalletRepository";
 
 // Services
-export { WalletService } from "./services/WalletService";
+export { WalletService } from "./application/services/WalletService";

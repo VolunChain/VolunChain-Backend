@@ -1,8 +1,8 @@
-import { HorizonWalletRepository } from "../repositories/HorizonWalletRepository";
-import { VerifyWalletUseCase } from "../use-cases/VerifyWalletUseCase";
-import { ValidateWalletFormatUseCase } from "../use-cases/ValidateWalletFormatUseCase";
-import { WalletVerificationRequestDto } from "../dto/WalletVerificationRequestDto";
-import { WalletVerificationResponseDto } from "../dto/WalletVerificationResponseDto";
+import { HorizonWalletRepository } from "../../repositories/HorizonWalletRepository";
+import { VerifyWalletUseCase } from "../../use-cases/VerifyWalletUseCase";
+import { ValidateWalletFormatUseCase } from "../../use-cases/ValidateWalletFormatUseCase";
+import { WalletVerificationRequestDto } from "../../dto/WalletVerificationRequestDto";
+import { WalletVerificationResponseDto } from "../../dto/WalletVerificationResponseDto";
 
 export class WalletService {
   private walletRepository: HorizonWalletRepository;
